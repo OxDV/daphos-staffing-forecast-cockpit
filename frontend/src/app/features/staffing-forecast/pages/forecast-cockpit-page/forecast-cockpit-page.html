@@ -12,10 +12,7 @@
       <span id="brand-mark" class="brand-mark">D</span>
       <div class="leading-tight">
         <div id="brand-name" class="text-base font-semibold tracking-tight">DaphOS</div>
-        <div
-          id="brand-subtitle"
-          class="text-[11px] uppercase tracking-[0.14em] text-ink-soft"
-        >
+        <div id="brand-subtitle" class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">
           Forecast
         </div>
       </div>
@@ -27,26 +24,34 @@
     >
       Wards
     </div>
-    <nav
+    <div
       id="ward-sidebar-nav"
       class="relative z-[1] flex flex-col gap-1.5 text-sm"
-      aria-label="Wards"
+      role="group"
+      aria-label="Visible wards"
     >
       @if (data(); as week) {
         @for (ward of week.wards; track ward.id) {
-          <a
-            class="rounded-xl px-3 py-2 text-left text-ink-soft hover:bg-white/35"
+          <label
+            class="ward-sidebar__item flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-ink-soft hover:bg-white/35"
             [attr.id]="'ward-sidebar-item-' + ward.code"
             [attr.data-testid]="'ward-sidebar-item-' + ward.code"
-            [attr.href]="'#ward-row-' + ward.code"
           >
-            {{ ward.name }} · {{ ward.code }}
-          </a>
+            <input
+              class="ward-sidebar__checkbox size-4 accent-[var(--color-accent)]"
+              type="checkbox"
+              [attr.id]="'ward-visibility-' + ward.code"
+              [attr.data-testid]="'ward-visibility-' + ward.code"
+              [checked]="isWardVisible(ward.id)"
+              (change)="onWardVisibilityChange(ward.id, $event)"
+            />
+            <span class="min-w-0 truncate">{{ ward.name }} · {{ ward.code }}</span>
+          </label>
         }
       } @else {
         <p id="ward-sidebar-empty" class="text-[13px] text-ink-faint">Waiting for week data</p>
       }
-    </nav>
+    </div>
 
     <div id="ward-sidebar-week" class="relative z-[1] mt-auto pt-5 text-[11px] text-ink-faint">
       Week
@@ -109,9 +114,17 @@
           </section>
         }
         @case ('ready') {
-          @if (data(); as week) {
+          @if (visibleWards().length === 0) {
+            <section
+              id="cockpit-no-wards-state"
+              class="glass h-full rounded-3xl p-8 text-ink-soft"
+              data-testid="cockpit-no-wards-state"
+            >
+              Select at least one ward in the sidebar to display the week grid.
+            </section>
+          } @else {
             <app-ward-week-grid
-              [wards]="week.wards"
+              [wards]="visibleWards()"
               [dayHeaders]="dayHeaders()"
               (daySelected)="onDaySelected($event)"
             />

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,6 +19,7 @@ import { WardDaySelection, WardWeekGrid } from '../../components/ward-week-grid/
 import { OverrideDialog } from '../../components/override-dialog/override-dialog';
 import { AuditSidebar } from '../../components/audit-sidebar/audit-sidebar';
 import { addDays, formatWeekRange, isoWeekNumber, mondayOf } from '../../week.utils';
+import { filterVisibleWards } from '../../ward-visibility.utils';
 
 @Component({
   selector: 'app-forecast-cockpit-page',
@@ -37,6 +45,8 @@ export class ForecastCockpitPage {
     { initialValue: this.route.snapshot.queryParamMap.get('week') },
   );
 
+  private readonly hiddenWardIds = signal<ReadonlySet<string>>(new Set());
+
   protected readonly status = this.store.status;
   protected readonly data = this.store.data;
   protected readonly dayHeaders = this.store.dayHeaders;
@@ -45,6 +55,10 @@ export class ForecastCockpitPage {
   protected readonly history = this.store.history;
   protected readonly historyLoading = this.store.historyLoading;
   protected readonly historyError = this.store.historyError;
+
+  protected readonly visibleWards = computed(() =>
+    filterVisibleWards(this.data()?.wards ?? [], this.hiddenWardIds()),
+  );
 
   protected readonly weekRangeLabel = computed(() => {
     const week = this.data();
@@ -87,6 +101,28 @@ export class ForecastCockpitPage {
         this.store.loadWeek(target);
       }
     });
+  }
+
+  protected isWardVisible(wardId: string): boolean {
+    return !this.hiddenWardIds().has(wardId);
+  }
+
+  protected onWardVisibilityChange(wardId: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.hiddenWardIds.update((current) => {
+      const next = new Set(current);
+      if (checked) {
+        next.delete(wardId);
+      } else {
+        next.add(wardId);
+      }
+      return next;
+    });
+
+    const selected = this.selectedDay();
+    if (!checked && selected?.wardId === wardId) {
+      this.store.clearSelection();
+    }
   }
 
   protected onPreviousWeek(): void {
