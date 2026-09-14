@@ -25,6 +25,7 @@ Fullstack take-home: ward managers review a weekly staffing demand forecast, spo
 
 ```text
 .
+├── start.sh         # Install deps + start backend & frontend
 ├── frontend/        # Angular cockpit
 ├── backend/         # FastAPI API + SQLite
 ├── e2e/             # Selenium + Jest scenarios
@@ -36,44 +37,64 @@ Fullstack take-home: ward managers review a weekly staffing demand forecast, spo
 
 ## Prerequisites
 
+Install these once on the machine (the script does not install system packages):
+
 - Node.js 20+
 - Python 3.11+
-- Chrome (for Selenium E2E only)
+- `curl` (used for health checks)
+- Chrome (only for Selenium E2E)
 
 ## Quick start
 
-### 1. Backend
+Clone the repo, switch to **`staging`**, then run one script:
 
 ```bash
+git clone https://github.com/OxDV/daphos-staffing-forecast-cockpit.git
+cd daphos-staffing-forecast-cockpit
+git checkout staging
+./start.sh
+```
+
+`./start.sh` will:
+
+1. Create `backend/.venv` if missing
+2. Install backend deps (`pip install -e ".[dev]"`)
+3. Run Alembic migrations and seed data
+4. Run `npm install` in `frontend/` if `node_modules` is missing
+5. Start the backend, wait for `/health/ready`, then start the frontend
+6. Print links to the app and API
+
+Ctrl+C stops both services.
+
+Printed URLs:
+
+- App (frontend): http://127.0.0.1:4200
+- API docs: http://127.0.0.1:8000/docs
+- Backend health: http://127.0.0.1:8000/health/ready
+
+Frontend `/api` is proxied to `http://127.0.0.1:8000`.
+
+### Manual start (optional)
+
+```bash
+# Backend
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 alembic upgrade head
 python -m app.seed
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
 
-- API docs: http://127.0.0.1:8000/docs  
-- Health: http://127.0.0.1:8000/health/live · http://127.0.0.1:8000/health/ready  
+# Frontend (another terminal)
+cd frontend && npm install && npm start
+```
 
 Reset seed data:
 
 ```bash
+cd backend && source .venv/bin/activate
 python -m app.seed --reset
 ```
-
-### 2. Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-App: http://127.0.0.1:4200  
-
-`/api` is proxied to `http://127.0.0.1:8000`.
 
 ## Forecast data
 
