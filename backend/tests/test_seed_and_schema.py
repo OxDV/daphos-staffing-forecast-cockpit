@@ -87,22 +87,26 @@ def test_seed_creates_deterministic_dataset(session: Session, fixed_today: date)
     assert first.created is True
     assert first.ward_count == len(WARD_SPECS)
     assert first.staffing_day_count == 35 * len(WARD_SPECS)
-    assert first.override_count == 1
+    assert first.override_count >= 7
     assert first.week_start == date(2026, 9, 7)
     assert first.week_end == date(2026, 10, 11)
 
     wards = session.scalars(select(Ward).order_by(Ward.code)).all()
     assert [ward.code for ward in wards] == ["A2", "B3", "ICU"]
 
-    override = session.scalar(select(DemandOverride))
-    assert override is not None
-    assert override.corrected_by == settings.audit_user
-    assert override.justification
-    assert override.corrected_demand - override.previous_demand == Decimal("2.00")
+    overrides = session.scalars(select(DemandOverride)).all()
+    assert len(overrides) == first.override_count
+    assert all(item.corrected_by == settings.audit_user for item in overrides)
+    assert all(item.justification for item in overrides)
+    assert any(
+        item.corrected_demand - item.previous_demand == Decimal("2.00") for item in overrides
+    )
 
-    staffing_day = session.get(StaffingDay, override.staffing_day_id)
-    assert staffing_day is not None
-    assert staffing_day.service_date > fixed_today
+    corrected_day_ids = {item.staffing_day_id for item in overrides}
+    assert len(corrected_day_ids) >= 5
+    for day_id in corrected_day_ids:
+        staffing_day = session.get(StaffingDay, day_id)
+        assert staffing_day is not None
 
 
 def test_seed_is_idempotent(session: Session, fixed_today: date) -> None:
@@ -132,7 +136,9 @@ def test_reset_and_seed_recreates_dataset(session: Session, fixed_today: date) -
     assert reset.staffing_day_count == first.staffing_day_count
     assert reset.override_count == first.override_count
     assert second_ward_id != first_ward_id
-    assert session.scalar(select(func.count()).select_from(DemandOverride)) == 1
+    assert (
+        session.scalar(select(func.count()).select_from(DemandOverride)) == first.override_count
+    )
 
 
 def test_seed_requires_future_day_for_initial_override(

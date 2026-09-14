@@ -134,7 +134,7 @@ def test_delete_override_restores_effective_demand(
     seeded_session: Session,
 ) -> None:
     ward_id = _ward_id(seeded_session)
-    service_date = "2026-09-16"
+    service_date = "2026-09-15"
 
     created = client.post(
         f"/api/v1/wards/{ward_id}/staffing-days/{service_date}/overrides",

@@ -9,56 +9,49 @@
   [attr.data-confidence-band]="band().kind"
   (click)="onActivate()"
 >
-  <div class="flex items-baseline gap-1.5">
-    @if (day().isCorrected) {
-      <span class="font-mono text-xs line-through opacity-60" data-testid="forecast-demand">
-        {{ day().forecastDemand }}
-      </span>
-    }
-    <span class="font-mono text-xl leading-none tabular-nums sm:text-2xl">{{
-      day().effectiveDemand
-    }}</span>
-    <span class="font-mono text-xs opacity-60">/{{ day().plannedStaffing }}</span>
+  <div class="staffing-day-cell__top">
+    <div class="staffing-day-cell__demand">
+      @if (day().isCorrected) {
+        <span class="staffing-day-cell__was" data-testid="forecast-demand">
+          {{ day().forecastDemand }}
+        </span>
+      }
+      <span class="staffing-day-cell__value">{{ day().effectiveDemand }}</span>
+    </div>
+    <div class="staffing-day-cell__planned">Plan {{ day().plannedStaffing }}</div>
   </div>
 
-  @if (day().canOverride) {
-    <div
-      class="mt-2.5 flex items-center gap-1 text-xs font-medium"
-      [class.text-short]="status().kind === 'short'"
-      [class.text-surplus]="status().kind === 'surplus'"
-      [class.text-balance]="status().kind === 'balanced'"
-      data-testid="staffing-status"
-    >
-      <mat-icon class="!text-base !h-4 !w-4">
-        {{
-          status().kind === 'short'
-            ? 'arrow_upward'
-            : status().kind === 'surplus'
-              ? 'arrow_downward'
-              : 'remove'
-        }}
-      </mat-icon>
-      <span>{{ status().label }}</span>
-    </div>
-
-    @if (day().isCorrected) {
+  <div class="staffing-day-cell__bottom">
+    @if (day().canOverride) {
       <div
-        class="mt-1.5 flex items-center gap-1 text-xs font-medium"
-        style="color: var(--mat-sys-primary)"
-        data-testid="corrected-marker"
+        class="staffing-day-cell__status"
+        [class.text-short]="status().kind === 'short'"
+        [class.text-surplus]="status().kind === 'surplus'"
+        [class.text-balance]="status().kind === 'balanced'"
+        data-testid="staffing-status"
       >
-        <mat-icon class="!text-base !h-4 !w-4">info</mat-icon>
-        <span>Corrected</span>
+        <mat-icon class="staffing-day-cell__icon">
+          {{
+            status().kind === 'short'
+              ? 'arrow_upward'
+              : status().kind === 'surplus'
+                ? 'arrow_downward'
+                : 'remove'
+          }}
+        </mat-icon>
+        <span class="staffing-day-cell__status-text">{{ status().label }}</span>
       </div>
     } @else {
-      <div class="mt-1.5 text-xs opacity-70" data-testid="confidence-label">
-        conf {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
-      </div>
+      <div class="staffing-day-cell__locked">Locked · past</div>
     }
-  } @else {
-    <div class="mt-2.5 text-xs opacity-70">Locked · past</div>
-    <div class="text-xs opacity-70" data-testid="confidence-label">
-      conf {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
+
+    <div class="staffing-day-cell__footer">
+      <span data-testid="confidence-label">
+        {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
+      </span>
+      @if (day().isCorrected) {
+        <span class="staffing-day-cell__corrected" data-testid="corrected-marker">Corrected</span>
+      }
     </div>
-  }
+  </div>
 </button>

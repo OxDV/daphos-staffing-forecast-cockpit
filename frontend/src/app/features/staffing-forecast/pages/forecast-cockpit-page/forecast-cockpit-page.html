@@ -53,9 +53,24 @@
       }
     </div>
 
-    <div id="ward-sidebar-week" class="relative z-[1] mt-auto pt-5 text-[11px] text-ink-faint">
-      Week
-      <span class="font-mono text-ink-soft">{{ data()?.weekStart ?? '—' }}</span>
+    <div
+      id="ward-sidebar-week"
+      class="relative z-[1] mt-auto flex items-center justify-between gap-2 pt-5 text-[11px] text-ink-faint"
+    >
+      <div>
+        Week
+        <span class="font-mono text-ink-soft">{{ data()?.weekStart ?? '—' }}</span>
+      </div>
+      <button
+        id="cockpit-legend-button"
+        type="button"
+        class="cockpit-legend-button inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-ink-faint hover:bg-white/40 hover:text-ink"
+        data-testid="cockpit-legend-button"
+        aria-label="Explain day cards and audit"
+        (click)="onOpenLegend()"
+      >
+        <mat-icon class="!h-4 !w-4 !text-[16px]">priority_high</mat-icon>
+      </button>
     </div>
   </aside>
 

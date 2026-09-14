@@ -141,45 +141,198 @@ def _create_seed_dataset(
     session.add_all(staffing_days)
     session.flush()
 
-    # One seeded override on a future day of Ward B3 so audit history is visible immediately.
-    b3 = next(ward for ward in wards if ward.code == "B3")
-    future_candidates = [
-        day
-        for day in staffing_days
-        if day.ward_id == b3.id and day.service_date > reference_day
-    ]
-    if not future_candidates:
-        raise RuntimeError("Seed dataset must include at least one future staffing day.")
-
-    target_day = future_candidates[min(2, len(future_candidates) - 1)]
-    corrected = target_day.forecast_demand + Decimal("2.00")
-    session.add(
-        DemandOverride(
-            staffing_day_id=target_day.id,
-            previous_demand=target_day.forecast_demand,
-            corrected_demand=corrected,
-            justification="Two additional high-acuity admissions expected",
-            corrected_by=settings.audit_user,
-            corrected_at=datetime(
-                reference_day.year,
-                reference_day.month,
-                reference_day.day,
-                8,
-                0,
-                tzinfo=UTC,
-            ),
-        )
+    overrides = _build_seed_overrides(
+        wards=wards,
+        staffing_days=staffing_days,
+        reference_day=reference_day,
     )
+    session.add_all(overrides)
     session.commit()
 
     return SeedResult(
         created=True,
         ward_count=len(wards),
         staffing_day_count=len(staffing_days),
-        override_count=1,
+        override_count=len(overrides),
         week_start=dates[0],
         week_end=dates[-1],
     )
+
+
+def _days_for_ward(wards: list[Ward], staffing_days: list[StaffingDay], code: str) -> list[StaffingDay]:
+    ward = next(item for item in wards if item.code == code)
+    return sorted(
+        (day for day in staffing_days if day.ward_id == ward.id),
+        key=lambda day: day.service_date,
+    )
+
+
+def _pick(days: list[StaffingDay], index: int) -> StaffingDay:
+    return days[min(index, len(days) - 1)]
+
+
+def _override(
+    *,
+    day: StaffingDay,
+    previous_demand: Decimal,
+    corrected_demand: Decimal,
+    justification: str,
+    reference_day: date,
+    hour: int,
+    minute: int = 0,
+) -> DemandOverride:
+    return DemandOverride(
+        staffing_day_id=day.id,
+        previous_demand=previous_demand,
+        corrected_demand=corrected_demand,
+        justification=justification,
+        corrected_by=settings.audit_user,
+        corrected_at=datetime(
+            reference_day.year,
+            reference_day.month,
+            reference_day.day,
+            hour,
+            minute,
+            tzinfo=UTC,
+        ),
+    )
+
+
+def _build_seed_overrides(
+    *,
+    wards: list[Ward],
+    staffing_days: list[StaffingDay],
+    reference_day: date,
+) -> list[DemandOverride]:
+    b3_days = _days_for_ward(wards, staffing_days, "B3")
+    icu_days = _days_for_ward(wards, staffing_days, "ICU")
+    a2_days = _days_for_ward(wards, staffing_days, "A2")
+
+    b3_future = [day for day in b3_days if day.service_date > reference_day]
+    b3_past = [day for day in b3_days if day.service_date < reference_day]
+    icu_future = [day for day in icu_days if day.service_date > reference_day]
+    a2_future = [day for day in a2_days if day.service_date > reference_day]
+    a2_past = [day for day in a2_days if day.service_date < reference_day]
+
+    if not b3_future or not icu_future or not a2_future:
+        raise RuntimeError("Seed dataset must include at least one future staffing day.")
+
+    overrides: list[DemandOverride] = []
+
+    b3_primary = _pick(b3_future, 1)
+    first_corrected = b3_primary.forecast_demand + Decimal("2.00")
+    overrides.append(
+        _override(
+            day=b3_primary,
+            previous_demand=b3_primary.forecast_demand,
+            corrected_demand=first_corrected,
+            justification="Two additional high-acuity admissions expected",
+            reference_day=reference_day,
+            hour=8,
+        )
+    )
+    overrides.append(
+        _override(
+            day=b3_primary,
+            previous_demand=first_corrected,
+            corrected_demand=first_corrected + Decimal("1.00"),
+            justification="Overnight escalation: one more monitored bed required",
+            reference_day=reference_day,
+            hour=14,
+            minute=30,
+        )
+    )
+
+    b3_second = _pick(b3_future, 3)
+    overrides.append(
+        _override(
+            day=b3_second,
+            previous_demand=b3_second.forecast_demand,
+            corrected_demand=b3_second.forecast_demand + Decimal("2.50"),
+            justification="Planned transfers from ED confirmed for afternoon",
+            reference_day=reference_day,
+            hour=9,
+            minute=15,
+        )
+    )
+
+    b3_third = _pick(b3_future, 5)
+    overrides.append(
+        _override(
+            day=b3_third,
+            previous_demand=b3_third.forecast_demand,
+            corrected_demand=max(Decimal("0.00"), b3_third.forecast_demand - Decimal("1.50")),
+            justification="Two early discharges confirmed by attending",
+            reference_day=reference_day,
+            hour=11,
+        )
+    )
+
+    icu_primary = _pick(icu_future, 2)
+    overrides.append(
+        _override(
+            day=icu_primary,
+            previous_demand=icu_primary.forecast_demand,
+            corrected_demand=icu_primary.forecast_demand + Decimal("3.00"),
+            justification="Extra isolation room opening for outbreak cohort",
+            reference_day=reference_day,
+            hour=7,
+            minute=45,
+        )
+    )
+
+    icu_second = _pick(icu_future, 4)
+    overrides.append(
+        _override(
+            day=icu_second,
+            previous_demand=icu_second.forecast_demand,
+            corrected_demand=icu_second.forecast_demand + Decimal("1.50"),
+            justification="Delayed step-down: keep one ICU nurse longer",
+            reference_day=reference_day,
+            hour=16,
+        )
+    )
+
+    a2_primary = _pick(a2_future, 1)
+    overrides.append(
+        _override(
+            day=a2_primary,
+            previous_demand=a2_primary.forecast_demand,
+            corrected_demand=a2_primary.forecast_demand + Decimal("2.00"),
+            justification="Orthopedic list overbooked by two cases",
+            reference_day=reference_day,
+            hour=10,
+        )
+    )
+
+    if b3_past:
+        b3_historical = _pick(b3_past, 2)
+        overrides.append(
+            _override(
+                day=b3_historical,
+                previous_demand=b3_historical.forecast_demand,
+                corrected_demand=b3_historical.forecast_demand + Decimal("2.00"),
+                justification="Weekend surge recorded after the shift (historical)",
+                reference_day=reference_day,
+                hour=18,
+            )
+        )
+
+    if a2_past:
+        a2_historical = _pick(a2_past, 1)
+        overrides.append(
+            _override(
+                day=a2_historical,
+                previous_demand=a2_historical.forecast_demand,
+                corrected_demand=a2_historical.forecast_demand + Decimal("1.50"),
+                justification="Manual correction after ward round (historical)",
+                reference_day=reference_day,
+                hour=19,
+                minute=20,
+            )
+        )
+
+    return overrides
 
 
 def main() -> None:  # pragma: no cover

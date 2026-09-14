@@ -86,6 +86,9 @@ describe('StaffingDayCell', () => {
     expect(compiled.querySelector('[data-testid="corrected-marker"]')?.textContent).toContain(
       'Corrected',
     );
+    expect(compiled.querySelector('[data-testid="confidence-label"]')?.textContent).toContain(
+      'Medium',
+    );
   });
 
   it('emits dayActivate for editable and locked cells', () => {
