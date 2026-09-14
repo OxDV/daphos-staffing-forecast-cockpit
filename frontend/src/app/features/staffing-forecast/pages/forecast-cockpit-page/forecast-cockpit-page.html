@@ -1,72 +1,49 @@
 <div
   id="forecast-cockpit"
-  class="forecast-cockpit relative mx-auto flex h-[100dvh] min-h-screen w-[90%] max-w-none gap-5 py-5"
+  class="forecast-cockpit mx-auto flex h-[100dvh] min-h-screen w-[90%] gap-4 py-4"
   data-testid="forecast-cockpit"
 >
-  <aside
+  <mat-card
     id="ward-sidebar"
-    class="ward-sidebar glass hidden w-52 shrink-0 flex-col rounded-3xl p-5 md:flex"
+    class="ward-sidebar hidden w-52 shrink-0 !rounded-xl md:flex md:flex-col"
     data-testid="ward-sidebar"
   >
-    <div id="brand-block" class="brand-block mb-6 flex items-center gap-3">
-      <span
-        id="brand-mark"
-        class="brand-block__mark grid size-9 place-items-center rounded-xl bg-accent text-xs font-bold text-accent-ink"
-      >
-        D
-      </span>
-      <div class="brand-block__copy leading-tight">
-        <div
-          id="brand-name"
-          class="brand-block__name font-display text-base font-semibold tracking-tight"
-        >
-          DaphOS
-        </div>
-        <div
-          id="brand-subtitle"
-          class="brand-block__subtitle text-[11px] uppercase tracking-[0.14em] text-ink-soft"
-        >
-          Forecast
-        </div>
+    <mat-card-header class="!mb-2">
+      <mat-card-title id="brand-name">DaphOS</mat-card-title>
+      <mat-card-subtitle id="brand-subtitle">Forecast</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content class="!flex !flex-1 !flex-col">
+      <div id="ward-sidebar-label" class="mb-2 text-xs uppercase tracking-wide opacity-60">
+        Wards
       </div>
-    </div>
-
-    <div
-      id="ward-sidebar-label"
-      class="mb-2 text-[11px] uppercase tracking-[0.14em] text-ink-faint"
-    >
-      Wards
-    </div>
-    <nav
-      id="ward-sidebar-nav"
-      class="ward-sidebar__nav flex flex-col gap-1.5 text-sm"
-      aria-label="Wards"
-    >
-      @if (data(); as week) {
-        @for (ward of week.wards; track ward.id) {
-          <a
-            class="ward-sidebar__item rounded-xl px-3 py-2 text-left text-ink-soft hover:bg-ink/5"
-            [attr.id]="'ward-sidebar-item-' + ward.code"
-            [attr.data-testid]="'ward-sidebar-item-' + ward.code"
-            [attr.href]="'#ward-row-' + ward.code"
-          >
-            {{ ward.name }} · {{ ward.code }}
-          </a>
+      <mat-nav-list id="ward-sidebar-nav" dense aria-label="Wards">
+        @if (data(); as week) {
+          @for (ward of week.wards; track ward.id) {
+            <a
+              mat-list-item
+              [attr.id]="'ward-sidebar-item-' + ward.code"
+              [attr.data-testid]="'ward-sidebar-item-' + ward.code"
+              [attr.href]="'#ward-row-' + ward.code"
+            >
+              {{ ward.name }} · {{ ward.code }}
+            </a>
+          }
+        } @else {
+          <p id="ward-sidebar-empty" class="px-4 text-sm opacity-60">Waiting for week data</p>
         }
-      } @else {
-        <p id="ward-sidebar-empty" class="text-[13px] text-ink-faint">Waiting for week data</p>
-      }
-    </nav>
+      </mat-nav-list>
 
-    <div id="ward-sidebar-week" class="mt-auto pt-5 text-[11px] text-ink-faint">
-      Week
-      <span class="font-mono text-ink-soft">{{ data()?.weekStart ?? '—' }}</span>
-    </div>
-  </aside>
+      <div id="ward-sidebar-week" class="mt-auto pt-4 text-xs opacity-60">
+        Week
+        <span class="font-mono">{{ data()?.weekStart ?? '—' }}</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
   <main
     id="forecast-main"
-    class="forecast-main flex min-h-0 min-w-0 flex-1 flex-col gap-5"
+    class="forecast-main flex min-h-0 min-w-0 flex-1 flex-col gap-4"
     data-testid="forecast-main"
   >
     <app-week-navigation
@@ -77,43 +54,46 @@
       (nextWeek)="onNextWeek()"
     />
 
-    <div id="forecast-main-content" class="forecast-main__content min-h-0 flex-1 overflow-auto">
+    <div id="forecast-main-content" class="min-h-0 flex-1 overflow-auto">
       @switch (status()) {
         @case ('loading') {
-          <section
+          <mat-card
             id="cockpit-loading-state"
-            class="cockpit-state glass h-full rounded-3xl p-8 text-base text-ink-soft"
+            class="flex h-full items-center justify-center gap-3 !rounded-xl p-8"
             data-testid="cockpit-loading-state"
           >
-            Loading staffing week…
-          </section>
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Loading staffing week…</span>
+          </mat-card>
         }
         @case ('error') {
-          <section
+          <mat-card
             id="cockpit-error-state"
-            class="cockpit-state glass h-full rounded-3xl p-8"
+            class="h-full !rounded-xl p-8"
             data-testid="cockpit-error-state"
           >
-            <p id="cockpit-error-message" class="text-base text-ink">{{ error() }}</p>
+            <p id="cockpit-error-message">{{ error() }}</p>
             <button
               id="cockpit-retry-button"
+              mat-flat-button
+              color="primary"
               type="button"
-              class="mt-4 rounded-xl bg-accent px-4 py-2 text-sm text-accent-ink"
+              class="mt-4"
               data-testid="cockpit-retry-button"
               (click)="onRetry()"
             >
               Retry
             </button>
-          </section>
+          </mat-card>
         }
         @case ('empty') {
-          <section
+          <mat-card
             id="cockpit-empty-state"
-            class="cockpit-state glass h-full rounded-3xl p-8 text-base text-ink-soft"
+            class="h-full !rounded-xl p-8"
             data-testid="cockpit-empty-state"
           >
             No staffing data is available for this week.
-          </section>
+          </mat-card>
         }
         @case ('ready') {
           @if (data(); as week) {
@@ -125,13 +105,13 @@
           }
         }
         @default {
-          <section
+          <mat-card
             id="cockpit-idle-state"
-            class="cockpit-state glass h-full rounded-3xl p-8 text-base text-ink-soft"
+            class="h-full !rounded-xl p-8"
             data-testid="cockpit-idle-state"
           >
             Preparing cockpit…
-          </section>
+          </mat-card>
         }
       }
     </div>
@@ -144,15 +124,3 @@
     [error]="historyError()"
   />
 </div>
-
-@if (dialogOpen() && selectedDay(); as selection) {
-  @if (data(); as week) {
-    <app-override-dialog
-      [wardId]="selection.wardId"
-      [wardName]="selection.wardName"
-      [day]="selection.day"
-      [policy]="week.overridePolicy"
-      (closed)="onDialogClosed()"
-    />
-  }
-}

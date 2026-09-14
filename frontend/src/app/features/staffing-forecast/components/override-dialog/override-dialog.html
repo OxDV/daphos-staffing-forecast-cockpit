@@ -1,105 +1,80 @@
-<div
-  id="override-dialog-backdrop"
-  class="override-dialog-backdrop fixed inset-0 z-40 flex items-center justify-center bg-ink/35 p-4"
-  data-testid="override-dialog-backdrop"
->
-  <section
-    id="override-dialog"
-    class="override-dialog glass w-full max-w-md rounded-3xl p-6"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="override-dialog-title"
-    data-testid="override-dialog"
+<h2 id="override-dialog-title" mat-dialog-title data-testid="override-dialog">Correct demand</h2>
+
+<mat-dialog-content id="override-dialog" class="!pt-2">
+  <p id="override-dialog-subtitle" class="mb-1 text-sm opacity-80">
+    {{ data.wardName }} · {{ data.day.date }}
+  </p>
+  <p id="override-dialog-forecast" class="mb-4 font-mono text-xs opacity-60">
+    Forecast {{ data.day.forecastDemand }} · Current {{ data.day.effectiveDemand }}
+  </p>
+
+  <form id="override-form" class="flex flex-col gap-3" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-form-field id="corrected-demand-field" appearance="outline" class="w-full">
+      <mat-label>Corrected demand</mat-label>
+      <input
+        id="corrected-demand-input"
+        matInput
+        type="number"
+        min="0"
+        step="0.01"
+        formControlName="correctedDemand"
+        data-testid="corrected-demand-input"
+      />
+    </mat-form-field>
+    @if (clientErrors().correctedDemand; as message) {
+      <span
+        id="corrected-demand-error"
+        class="text-sm text-short"
+        data-testid="corrected-demand-error"
+      >
+        {{ message }}
+      </span>
+    }
+
+    <mat-form-field id="justification-field" appearance="outline" class="w-full">
+      <mat-label>Justification</mat-label>
+      <textarea
+        id="justification-input"
+        matInput
+        rows="4"
+        maxlength="500"
+        formControlName="justification"
+        data-testid="justification-input"
+      ></textarea>
+    </mat-form-field>
+    @if (clientErrors().justification; as message) {
+      <span id="justification-error" class="text-sm text-short" data-testid="justification-error">
+        {{ message }}
+      </span>
+    }
+
+    @if (serverError(); as message) {
+      <p id="override-server-error" class="text-sm text-short" data-testid="override-server-error">
+        {{ message }}
+      </p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions id="override-dialog-actions" align="end">
+  <button
+    id="override-cancel-button"
+    mat-button
+    type="button"
+    data-testid="override-cancel-button"
+    (click)="onCancel()"
   >
-    <header id="override-dialog-header" class="mb-5">
-      <h2 id="override-dialog-title" class="font-display text-lg font-semibold tracking-tight">
-        Correct demand
-      </h2>
-      <p id="override-dialog-subtitle" class="mt-1 text-sm text-ink-soft">
-        {{ wardName() }} · {{ day().date }}
-      </p>
-      <p id="override-dialog-forecast" class="mt-2 font-mono text-xs text-ink-faint">
-        Forecast {{ day().forecastDemand }} · Current {{ day().effectiveDemand }}
-      </p>
-    </header>
-
-    <form id="override-form" class="space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()">
-      <label id="corrected-demand-field" class="block">
-        <span class="mb-1.5 block text-[11px] uppercase tracking-[0.12em] text-ink-faint">
-          Corrected demand
-        </span>
-        <input
-          id="corrected-demand-input"
-          class="w-full rounded-xl border border-white/60 bg-white/45 px-3 py-2.5 font-mono text-base outline-none focus:ring-2 focus:ring-accent/60"
-          type="number"
-          min="0"
-          step="0.01"
-          formControlName="correctedDemand"
-          data-testid="corrected-demand-input"
-        />
-        @if (clientErrors().correctedDemand; as message) {
-          <span
-            id="corrected-demand-error"
-            class="mt-1 block text-xs text-short"
-            data-testid="corrected-demand-error"
-          >
-            {{ message }}
-          </span>
-        }
-      </label>
-
-      <label id="justification-field" class="block">
-        <span class="mb-1.5 block text-[11px] uppercase tracking-[0.12em] text-ink-faint">
-          Justification
-        </span>
-        <textarea
-          id="justification-input"
-          class="min-h-24 w-full rounded-xl border border-white/60 bg-white/45 px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/60"
-          formControlName="justification"
-          maxlength="500"
-          data-testid="justification-input"
-        ></textarea>
-        @if (clientErrors().justification; as message) {
-          <span
-            id="justification-error"
-            class="mt-1 block text-xs text-short"
-            data-testid="justification-error"
-          >
-            {{ message }}
-          </span>
-        }
-      </label>
-
-      @if (serverError(); as message) {
-        <p
-          id="override-server-error"
-          class="text-sm text-short"
-          data-testid="override-server-error"
-        >
-          {{ message }}
-        </p>
-      }
-
-      <div id="override-dialog-actions" class="flex justify-end gap-2 pt-2">
-        <button
-          id="override-cancel-button"
-          type="button"
-          class="rounded-xl bg-ink/5 px-4 py-2 text-sm text-ink-soft hover:bg-ink/10"
-          data-testid="override-cancel-button"
-          (click)="onCancel()"
-        >
-          Cancel
-        </button>
-        <button
-          id="override-save-button"
-          type="submit"
-          class="rounded-xl bg-accent px-4 py-2 text-sm text-accent-ink disabled:opacity-60"
-          data-testid="override-save-button"
-          [disabled]="submitting()"
-        >
-          {{ submitting() ? 'Saving…' : 'Save correction' }}
-        </button>
-      </div>
-    </form>
-  </section>
-</div>
+    Cancel
+  </button>
+  <button
+    id="override-save-button"
+    mat-flat-button
+    color="primary"
+    type="button"
+    data-testid="override-save-button"
+    [disabled]="submitting()"
+    (click)="onSubmit()"
+  >
+    {{ submitting() ? 'Saving…' : 'Save correction' }}
+  </button>
+</mat-dialog-actions>

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 
 import { OverrideDialog } from './override-dialog';
@@ -19,6 +20,7 @@ describe('OverrideDialog', () => {
     overrideError: () => string | null;
     createOverride: jest.Mock;
   };
+  let dialogRef: { close: jest.Mock };
 
   const day: StaffingDay = {
     date: '2026-09-16',
@@ -42,56 +44,33 @@ describe('OverrideDialog', () => {
       overrideError: () => null,
       createOverride: jest.fn(),
     };
+    dialogRef = { close: jest.fn() };
 
     await TestBed.configureTestingModule({
       imports: [OverrideDialog],
-      providers: [{ provide: StaffingWeekStore, useValue: store }],
+      providers: [
+        { provide: StaffingWeekStore, useValue: store },
+        { provide: MatDialogRef, useValue: dialogRef },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            wardId: 'ward-1',
+            wardName: 'Ward B3',
+            day,
+            policy,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OverrideDialog);
     dialog = fixture.componentInstance as OverrideDialogHarness;
-    fixture.componentRef.setInput('wardId', 'ward-1');
-    fixture.componentRef.setInput('wardName', 'Ward B3');
-    fixture.componentRef.setInput('day', day);
-    fixture.componentRef.setInput('policy', policy);
     fixture.detectChanges();
   });
 
-  it('reseeds the form only when the selected date changes', () => {
-    dialog.form.setValue({ correctedDemand: 18, justification: 'Keep me' });
-
-    fixture.componentRef.setInput('day', {
-      ...day,
-      effectiveDemand: 14,
-      isCorrected: true,
-    });
-    fixture.detectChanges();
-
-    expect(dialog.form.getRawValue()).toEqual({
-      correctedDemand: 18,
-      justification: 'Keep me',
-    });
-
-    fixture.componentRef.setInput('day', {
-      ...day,
-      date: '2026-09-17',
-      effectiveDemand: 9,
-    });
-    fixture.detectChanges();
-
-    expect(dialog.form.getRawValue()).toEqual({
-      correctedDemand: 9,
-      justification: '',
-    });
-  });
-
-  it('emits closed on cancel', () => {
-    const closed = jest.fn();
-    fixture.componentInstance.closed.subscribe(closed);
-
+  it('closes without saving on cancel', () => {
     dialog.onCancel();
-
-    expect(closed).toHaveBeenCalled();
+    expect(dialogRef.close).toHaveBeenCalledWith(false);
   });
 
   it('shows client validation errors and does not submit', () => {
@@ -114,10 +93,6 @@ describe('OverrideDialog', () => {
 
   it('saves a valid correction and closes', () => {
     store.createOverride.mockReturnValue(of({}));
-    const closed = jest.fn();
-    const saved = jest.fn();
-    fixture.componentInstance.closed.subscribe(closed);
-    fixture.componentInstance.saved.subscribe(saved);
 
     dialog.form.setValue({ correctedDemand: 13, justification: '  Needed  ' });
     dialog.onSubmit();
@@ -126,20 +101,17 @@ describe('OverrideDialog', () => {
       correctedDemand: 13,
       justification: 'Needed',
     });
-    expect(saved).toHaveBeenCalled();
-    expect(closed).toHaveBeenCalled();
+    expect(dialogRef.close).toHaveBeenCalledWith(true);
   });
 
   it('keeps the dialog open when save fails', () => {
     store.createOverride.mockReturnValue(throwError(() => new Error('fail')));
-    const closed = jest.fn();
-    fixture.componentInstance.closed.subscribe(closed);
 
     dialog.form.setValue({ correctedDemand: 12.5, justification: '' });
     dialog.onSubmit();
 
     expect(store.createOverride).toHaveBeenCalled();
-    expect(closed).not.toHaveBeenCalled();
+    expect(dialogRef.close).not.toHaveBeenCalled();
     expect(dialog.form.disabled).toBe(false);
   });
 });

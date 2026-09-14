@@ -1,54 +1,44 @@
-<header
+<mat-toolbar
   id="week-navigation"
-  class="week-navigation glass flex flex-wrap items-center justify-between gap-4 rounded-3xl px-5 py-4"
+  class="week-navigation !rounded-xl !bg-[var(--mat-sys-surface-container)]"
   data-testid="week-navigation"
 >
-  <div id="week-navigation-controls" class="week-navigation__controls flex items-center gap-3">
-    <button
-      id="week-previous-button"
-      type="button"
-      class="week-navigation__previous rounded-xl bg-ink/5 px-3 py-2 text-base text-ink-soft hover:bg-ink/10"
-      data-testid="week-previous-button"
-      aria-label="Previous week"
-      (click)="previousWeek.emit()"
-    >
-      ←
-    </button>
+  <button
+    id="week-previous-button"
+    mat-icon-button
+    type="button"
+    aria-label="Previous week"
+    data-testid="week-previous-button"
+    (click)="previousWeek.emit()"
+  >
+    <mat-icon>chevron_left</mat-icon>
+  </button>
 
-    <div id="week-range" class="week-navigation__range min-w-52 text-center">
-      <h1
-        id="week-range-label"
-        class="week-navigation__range-label font-display text-base font-semibold tracking-tight"
-        data-testid="week-range-label"
-      >
-        {{ weekRangeLabel() }}
-      </h1>
-      <div
-        id="week-number-label"
-        class="week-navigation__week-number text-[11px] uppercase tracking-[0.14em] text-ink-faint"
-        data-testid="week-number-label"
-      >
-        {{ weekNumberLabel() }}
-      </div>
+  <div id="week-range" class="min-w-52 text-center">
+    <div id="week-range-label" class="text-base font-medium" data-testid="week-range-label">
+      {{ weekRangeLabel() }}
     </div>
-
-    <button
-      id="week-next-button"
-      type="button"
-      class="week-navigation__next rounded-xl bg-ink/5 px-3 py-2 text-base text-ink-soft hover:bg-ink/10"
-      data-testid="week-next-button"
-      aria-label="Next week"
-      (click)="nextWeek.emit()"
+    <div
+      id="week-number-label"
+      class="text-xs uppercase tracking-wide opacity-70"
+      data-testid="week-number-label"
     >
-      →
-    </button>
+      {{ weekNumberLabel() }}
+    </div>
   </div>
 
-  <span
-    id="week-today-badge"
-    class="week-navigation__today rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-medium text-accent"
-    data-testid="week-today-badge"
+  <button
+    id="week-next-button"
+    mat-icon-button
+    type="button"
+    aria-label="Next week"
+    data-testid="week-next-button"
+    (click)="nextWeek.emit()"
   >
-    {{ todayLabel() }}
-  </span>
-</header>
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+
+  <span class="flex-1"></span>
+
+  <mat-chip id="week-today-badge" data-testid="week-today-badge">{{ todayLabel() }}</mat-chip>
+</mat-toolbar>

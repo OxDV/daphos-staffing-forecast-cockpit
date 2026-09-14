@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 
 import { StaffingDayCell } from '../staffing-day-cell/staffing-day-cell';
 import { StaffingDay, WardWeek } from '../../staffing.models';
@@ -12,7 +13,7 @@ export interface WardDaySelection {
 @Component({
   selector: 'app-ward-week-grid',
   standalone: true,
-  imports: [StaffingDayCell],
+  imports: [StaffingDayCell, MatCardModule],
   templateUrl: './ward-week-grid.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

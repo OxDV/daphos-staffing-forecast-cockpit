@@ -12,6 +12,7 @@ module.exports = {
     'src/app/features/staffing-forecast/data-access/**/*.ts',
     'src/app/features/staffing-forecast/components/**/*.ts',
     '!src/app/**/*.spec.ts',
+    '!src/app/**/*.model.ts',
   ],
   coverageThreshold: {
     global: {

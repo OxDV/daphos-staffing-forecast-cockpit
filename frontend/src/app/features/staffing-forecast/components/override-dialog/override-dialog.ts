@@ -1,36 +1,40 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
-import { OverridePolicy, StaffingDay } from '../../staffing.models';
 import { validateOverrideInput } from '../../staffing.validators';
 import { StaffingWeekStore } from '../../data-access/staffing-week.store';
+import { OverrideDialogData } from './override-dialog.model';
 
 @Component({
   selector: 'app-override-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './override-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverrideDialog {
   private readonly formBuilder = inject(FormBuilder);
   private readonly store = inject(StaffingWeekStore);
-
-  readonly wardId = input.required<string>();
-  readonly wardName = input.required<string>();
-  readonly day = input.required<StaffingDay>();
-  readonly policy = input.required<OverridePolicy>();
-
-  readonly closed = output<void>();
-  readonly saved = output<void>();
+  private readonly dialogRef = inject(MatDialogRef<OverrideDialog, boolean>);
+  protected readonly data = inject<OverrideDialogData>(MAT_DIALOG_DATA);
 
   protected readonly clientErrors = signal<{ correctedDemand?: string; justification?: string }>(
     {},
@@ -39,41 +43,25 @@ export class OverrideDialog {
   protected readonly serverError = this.store.overrideError;
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    correctedDemand: this.formBuilder.control<number | null>(null, {
+    correctedDemand: this.formBuilder.control<number | null>(this.data.day.effectiveDemand, {
       validators: [Validators.required],
     }),
     justification: this.formBuilder.nonNullable.control(''),
   });
 
-  constructor() {
-    let seededDate: string | null = null;
-    effect(() => {
-      const day = this.day();
-      if (seededDate === day.date) {
-        return;
-      }
-      seededDate = day.date;
-      this.form.reset({
-        correctedDemand: day.effectiveDemand,
-        justification: '',
-      });
-      this.clientErrors.set({});
-    });
-  }
-
   protected onCancel(): void {
-    this.closed.emit();
+    this.dialogRef.close(false);
   }
 
   protected onSubmit(): void {
-    const day = this.day();
+    const day = this.data.day;
     const correctedDemand = this.form.controls.correctedDemand.value;
     const justification = this.form.controls.justification.value;
     const errors = validateOverrideInput(
       day.forecastDemand,
       correctedDemand,
       justification,
-      this.policy(),
+      this.data.policy,
     );
     this.clientErrors.set(errors);
     if (Object.keys(errors).length > 0 || correctedDemand === null) {
@@ -82,15 +70,14 @@ export class OverrideDialog {
 
     this.form.disable({ emitEvent: false });
     this.store
-      .createOverride(this.wardId(), day.date, {
+      .createOverride(this.data.wardId, day.date, {
         correctedDemand,
         justification: justification.trim(),
       })
       .subscribe({
         next: () => {
           this.form.enable({ emitEvent: false });
-          this.saved.emit();
-          this.closed.emit();
+          this.dialogRef.close(true);
         },
         error: () => {
           this.form.enable({ emitEvent: false });

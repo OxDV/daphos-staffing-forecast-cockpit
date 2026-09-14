@@ -1,12 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 
@@ -20,7 +18,15 @@ import { addDays, formatWeekRange, isoWeekNumber, mondayOf } from '../../week.ut
 @Component({
   selector: 'app-forecast-cockpit-page',
   standalone: true,
-  imports: [WeekNavigation, WardWeekGrid, OverrideDialog, AuditSidebar],
+  imports: [
+    WeekNavigation,
+    WardWeekGrid,
+    AuditSidebar,
+    MatCardModule,
+    MatButtonModule,
+    MatListModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './forecast-cockpit-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -28,6 +34,7 @@ export class ForecastCockpitPage {
   private readonly store = inject(StaffingWeekStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   private readonly weekQuery = toSignal(
     this.route.queryParamMap.pipe(map((params) => params.get('week'))),
@@ -42,7 +49,6 @@ export class ForecastCockpitPage {
   protected readonly history = this.store.history;
   protected readonly historyLoading = this.store.historyLoading;
   protected readonly historyError = this.store.historyError;
-  protected readonly dialogOpen = signal(false);
 
   protected readonly weekRangeLabel = computed(() => {
     const week = this.data();
@@ -116,10 +122,25 @@ export class ForecastCockpitPage {
       wardName: selection.ward.name,
       day: selection.day,
     });
-    this.dialogOpen.set(selection.day.canOverride);
-  }
 
-  protected onDialogClosed(): void {
-    this.dialogOpen.set(false);
+    if (!selection.day.canOverride) {
+      return;
+    }
+
+    const week = this.data();
+    if (!week) {
+      return;
+    }
+
+    this.dialog.open(OverrideDialog, {
+      width: '420px',
+      autoFocus: 'first-tabbable',
+      data: {
+        wardId: selection.ward.id,
+        wardName: selection.ward.name,
+        day: selection.day,
+        policy: week.overridePolicy,
+      },
+    });
   }
 }
