@@ -1,15 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogActions,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { validateOverrideInput } from '../../staffing.validators';
 import { StaffingWeekStore } from '../../data-access/staffing-week.store';
@@ -18,15 +9,7 @@ import { OverrideDialogData } from './override-dialog.model';
 @Component({
   selector: 'app-override-dialog',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
+  imports: [ReactiveFormsModule],
   templateUrl: './override-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

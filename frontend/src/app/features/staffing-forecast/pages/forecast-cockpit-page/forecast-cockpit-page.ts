@@ -129,9 +129,11 @@ export class ForecastCockpitPage {
     }
 
     this.dialog.open(OverrideDialog, {
-      width: '420px',
+      width: '440px',
+      maxWidth: '92vw',
       autoFocus: 'first-tabbable',
       panelClass: 'glass-dialog',
+      backdropClass: 'glass-dialog-backdrop',
       data: {
         wardId: selection.ward.id,
         wardName: selection.ward.name,
