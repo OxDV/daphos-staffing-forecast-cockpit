@@ -26,6 +26,8 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
+alembic upgrade head
+python -m app.seed
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -61,7 +63,9 @@ npm test -- --watch=false --browsers=ChromeHeadless
 
 ## Forecast data
 
-Forecast values will come from a deterministic generated seed dataset. No trained model is used.
+Forecast values come from a deterministic generated seed dataset (`python -m app.seed`).
+The generator uses a fixed random seed and dates relative to the current ISO week in
+`Europe/Berlin`. No trained model is used.
 
 ## Architecture
 
