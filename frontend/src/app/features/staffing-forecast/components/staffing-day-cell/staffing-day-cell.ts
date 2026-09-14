@@ -1,6 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 
 import { StaffingDay } from '../../staffing.models';
@@ -10,7 +8,7 @@ import { formatConfidencePercent } from '../../week.utils';
 @Component({
   selector: 'app-staffing-day-cell',
   standalone: true,
-  imports: [MatButtonModule, MatChipsModule, MatIconModule],
+  imports: [MatIconModule],
   templateUrl: './staffing-day-cell.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,7 +1,6 @@
 <button
   [attr.id]="cellId()"
   type="button"
-  mat-button
   [class]="cellClass()"
   [attr.data-testid]="cellId()"
   [attr.data-ward-code]="wardCode()"
@@ -22,7 +21,7 @@
 
   @if (day().canOverride) {
     <div
-      class="mt-2 flex items-center gap-1 text-xs"
+      class="mt-2.5 flex items-center gap-1 text-xs font-medium"
       [class.text-short]="status().kind === 'short'"
       [class.text-surplus]="status().kind === 'surplus'"
       [class.text-balance]="status().kind === 'balanced'"
@@ -41,17 +40,21 @@
     </div>
 
     @if (day().isCorrected) {
-      <div class="mt-1 flex items-center gap-1 text-xs" data-testid="corrected-marker">
-        <mat-icon class="!text-base !h-4 !w-4" color="primary">info</mat-icon>
+      <div
+        class="mt-1.5 flex items-center gap-1 text-xs font-medium"
+        style="color: var(--mat-sys-primary)"
+        data-testid="corrected-marker"
+      >
+        <mat-icon class="!text-base !h-4 !w-4">info</mat-icon>
         <span>Corrected</span>
       </div>
     } @else {
-      <div class="mt-1 text-xs opacity-70" data-testid="confidence-label">
+      <div class="mt-1.5 text-xs opacity-70" data-testid="confidence-label">
         conf {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
       </div>
     }
   } @else {
-    <div class="mt-2 text-xs opacity-70">Locked · past</div>
+    <div class="mt-2.5 text-xs opacity-70">Locked · past</div>
     <div class="text-xs opacity-70" data-testid="confidence-label">
       conf {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
     </div>

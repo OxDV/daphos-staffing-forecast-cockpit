@@ -5,10 +5,12 @@
 >
   <mat-card
     id="ward-sidebar"
-    class="ward-sidebar hidden w-52 shrink-0 !rounded-xl md:flex md:flex-col"
+    appearance="elevated"
+    class="cockpit-panel ward-sidebar hidden w-56 shrink-0 !rounded-2xl md:flex md:flex-col"
     data-testid="ward-sidebar"
   >
-    <mat-card-header class="!mb-2">
+    <mat-card-header class="!mb-3 !items-center gap-3">
+      <div id="brand-mark" class="brand-mark" mat-card-avatar>D</div>
       <mat-card-title id="brand-name">DaphOS</mat-card-title>
       <mat-card-subtitle id="brand-subtitle">Forecast</mat-card-subtitle>
     </mat-card-header>
@@ -59,7 +61,8 @@
         @case ('loading') {
           <mat-card
             id="cockpit-loading-state"
-            class="flex h-full items-center justify-center gap-3 !rounded-xl p-8"
+            appearance="elevated"
+            class="cockpit-panel flex h-full items-center justify-center gap-3 !rounded-2xl p-8"
             data-testid="cockpit-loading-state"
           >
             <mat-spinner diameter="32"></mat-spinner>
@@ -69,7 +72,8 @@
         @case ('error') {
           <mat-card
             id="cockpit-error-state"
-            class="h-full !rounded-xl p-8"
+            appearance="elevated"
+            class="cockpit-panel h-full !rounded-2xl p-8"
             data-testid="cockpit-error-state"
           >
             <p id="cockpit-error-message">{{ error() }}</p>
@@ -89,7 +93,8 @@
         @case ('empty') {
           <mat-card
             id="cockpit-empty-state"
-            class="h-full !rounded-xl p-8"
+            appearance="elevated"
+            class="cockpit-panel h-full !rounded-2xl p-8"
             data-testid="cockpit-empty-state"
           >
             No staffing data is available for this week.
@@ -107,7 +112,8 @@
         @default {
           <mat-card
             id="cockpit-idle-state"
-            class="h-full !rounded-xl p-8"
+            appearance="elevated"
+            class="cockpit-panel h-full !rounded-2xl p-8"
             data-testid="cockpit-idle-state"
           >
             Preparing cockpit…
