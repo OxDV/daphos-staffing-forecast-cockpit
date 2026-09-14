@@ -38,6 +38,7 @@ branch = true
 source = ["app"]
 omit = [
   "app/main.py",
+  "migrations/*",
   "*/migrations/*",
 ]
 

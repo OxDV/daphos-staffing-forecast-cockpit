@@ -11,6 +11,16 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
+## Database
+
+```bash
+alembic upgrade head
+python -m app.seed
+```
+
+The seed generates a deterministic five-week dataset relative to the current Europe/Berlin date:
+one past week, the current week, and three future weeks. Forecast values are synthetic.
+
 ## Run
 
 ```bash
