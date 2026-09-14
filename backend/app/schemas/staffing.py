@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, PlainSerializer
+from pydantic import BaseModel, ConfigDict, Field, PlainSerializer
 from pydantic.alias_generators import to_camel
-from typing import Annotated
 
 DecimalNumber = Annotated[Decimal, PlainSerializer(lambda value: float(value), return_type=float)]
 
@@ -56,3 +56,27 @@ class StaffingWeekResponse(ApiModel):
     today: date
     override_policy: OverridePolicyResponse
     wards: list[WardWeekResponse]
+
+
+class CreateDemandOverrideRequest(ApiModel):
+    corrected_demand: Decimal
+    justification: str | None = Field(default=None, max_length=500)
+
+
+class DemandOverrideResponse(ApiModel):
+    id: UUID
+    previous_demand: DecimalNumber
+    corrected_demand: DecimalNumber
+    justification: str
+    corrected_by: str
+    corrected_at: datetime
+
+
+class CreateDemandOverrideResponse(ApiModel):
+    override: DemandOverrideResponse
+    day: StaffingDayResponse
+    summary: WardWeekSummaryResponse
+
+
+class DemandOverrideHistoryResponse(ApiModel):
+    items: list[DemandOverrideResponse]

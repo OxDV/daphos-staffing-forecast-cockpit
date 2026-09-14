@@ -39,6 +39,14 @@ Example weekly endpoint:
 curl "http://localhost:8000/api/v1/staffing-weeks?weekStart=2026-09-14"
 ```
 
+Create a demand override:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/wards/{wardId}/staffing-days/2026-09-16/overrides" \
+  -H "Content-Type: application/json" \
+  -d '{"correctedDemand":20,"justification":"Two additional high-acuity admissions expected"}'
+```
+
 Health checks:
 
 - http://localhost:8000/health/live
