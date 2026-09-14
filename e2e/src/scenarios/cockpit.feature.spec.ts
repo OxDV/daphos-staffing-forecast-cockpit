@@ -107,6 +107,10 @@ describe('Staffing Forecast Cockpit E2E', () => {
 
       await driver.findElement(By.css(`[data-testid="${testId}"]`)).click();
       expect(await page.auditHistoryText()).toMatch(/Two extra high-acuity admissions expected/);
+
+      await page.deleteFirstAuditRecord();
+      await page.waitForAuditEmpty();
+      expect(await page.cellClass(testId)).not.toContain('staffing-day-cell--corrected');
     });
   });
 
@@ -125,8 +129,12 @@ describe('Staffing Forecast Cockpit E2E', () => {
 
       expect(await page.dialogCount()).toBe(0);
       expect(await page.cellClass(testId!)).toContain('staffing-day-cell--locked');
+      const correctButtons = await driver.findElements(
+        By.css('[data-testid="correct-demand-button"]'),
+      );
+      expect(correctButtons.length).toBe(0);
       const sidebar = await driver.findElement(By.css('[data-testid="audit-sidebar"]'));
-      expect(await sidebar.getText()).toMatch(/No corrections|Loading history|Audit history/i);
+      expect(await sidebar.getText()).toMatch(/locked|No corrections|Audit history/i);
     });
   });
 });

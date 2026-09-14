@@ -14,6 +14,7 @@ from app.domain.policies import (
     ABSOLUTE_JUSTIFICATION_THRESHOLD,
     RELATIVE_JUSTIFICATION_THRESHOLD,
     NotFoundError,
+    OverrideValidationError,
     can_override,
     validate_demand_override,
 )
@@ -21,6 +22,7 @@ from app.domain.summaries import day_metrics, effective_demand, ward_week_summar
 from app.persistence.models import DemandOverride, StaffingDay, Ward
 from app.schemas.staffing import (
     CreateDemandOverrideResponse,
+    DeleteDemandOverrideResponse,
     DemandOverrideHistoryResponse,
     DemandOverrideResponse,
     OverridePolicyResponse,
@@ -263,3 +265,41 @@ def get_override_history(
     staffing_day = _get_staffing_day(session, ward_id=ward_id, service_date=service_date)
     ordered = sorted(staffing_day.overrides, key=lambda item: item.corrected_at, reverse=True)
     return DemandOverrideHistoryResponse(items=[_override_response(item) for item in ordered])
+
+
+def delete_demand_override(
+    session: Session,
+    *,
+    ward_id: UUID,
+    service_date: date,
+    override_id: UUID,
+    today: date | None = None,
+) -> DeleteDemandOverrideResponse:
+    ward = _get_ward(session, ward_id)
+    staffing_day = _get_staffing_day(session, ward_id=ward_id, service_date=service_date)
+    ward_today = today or current_date_in_timezone(ward.timezone)
+
+    if not can_override(service_date=service_date, today=ward_today):
+        raise OverrideValidationError(
+            "Audit records cannot be deleted for past days.",
+            field_errors={"serviceDate": ["Past days cannot be changed."]},
+        )
+
+    override = next((item for item in staffing_day.overrides if item.id == override_id), None)
+    if override is None:
+        raise NotFoundError(
+            f"Override '{override_id}' was not found for staffing day '{service_date.isoformat()}'."
+        )
+
+    session.delete(override)
+    session.commit()
+    staffing_day = _get_staffing_day(session, ward_id=ward_id, service_date=service_date)
+
+    return DeleteDemandOverrideResponse(
+        day=_day_response(staffing_day, today=ward_today),
+        summary=_ward_week_summary_for(
+            session,
+            ward=ward,
+            week_start=monday_of(service_date),
+        ),
+    )

@@ -89,4 +89,20 @@ describe('WardWeekGrid', () => {
       },
     ]);
   });
+
+  it('marks only the selected ward/date cell', () => {
+    fixture.componentRef.setInput('selectedWardCode', 'B3');
+    fixture.componentRef.setInput('selectedDate', '2026-09-14');
+    fixture.detectChanges();
+
+    const selected = (fixture.nativeElement as HTMLElement).querySelector(
+      '#day-cell-B3-2026-09-14',
+    );
+    const other = (fixture.nativeElement as HTMLElement).querySelector(
+      '#day-cell-ICU-2026-09-14',
+    );
+
+    expect(selected?.className).toContain('staffing-day-cell--selected');
+    expect(other?.className).not.toContain('staffing-day-cell--selected');
+  });
 });

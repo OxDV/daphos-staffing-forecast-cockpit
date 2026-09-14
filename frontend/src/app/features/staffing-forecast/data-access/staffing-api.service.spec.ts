@@ -99,5 +99,23 @@ describe('StaffingApiService', () => {
     );
     historyRequest.flush({ items: [createResponse.override] });
     expect(historyItems).toBe(1);
+
+    let deletedDayDemand = -1;
+    service.deleteOverride('ward-1', '2026-09-16', 'ov-1').subscribe((response) => {
+      deletedDayDemand = response.day.effectiveDemand;
+    });
+    const deleteRequest = httpMock.expectOne(
+      '/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides/ov-1',
+    );
+    expect(deleteRequest.request.method).toBe('DELETE');
+    deleteRequest.flush({
+      day: { ...createResponse.day, effectiveDemand: 12, isCorrected: false, understaffing: 1 },
+      summary: {
+        totalUnderstaffing: 1,
+        manualCorrectionCount: 0,
+        averageAbsoluteDeviation: null,
+      },
+    });
+    expect(deletedDayDemand).toBe(12);
   });
 });

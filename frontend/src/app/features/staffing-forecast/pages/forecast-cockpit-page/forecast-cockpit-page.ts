@@ -55,6 +55,7 @@ export class ForecastCockpitPage {
   protected readonly history = this.store.history;
   protected readonly historyLoading = this.store.historyLoading;
   protected readonly historyError = this.store.historyError;
+  protected readonly deletingOverrideId = this.store.deletingOverrideId;
 
   protected readonly visibleWards = computed(() =>
     filterVisibleWards(this.data()?.wards ?? [], this.hiddenWardIds()),
@@ -154,13 +155,12 @@ export class ForecastCockpitPage {
       wardName: selection.ward.name,
       day: selection.day,
     });
+  }
 
-    if (!selection.day.canOverride) {
-      return;
-    }
-
+  protected onCorrectDemand(): void {
+    const selection = this.selectedDay();
     const week = this.data();
-    if (!week) {
+    if (!selection || !week || !selection.day.canOverride) {
       return;
     }
 
@@ -171,11 +171,19 @@ export class ForecastCockpitPage {
       panelClass: 'glass-dialog',
       backdropClass: 'glass-dialog-backdrop',
       data: {
-        wardId: selection.ward.id,
-        wardName: selection.ward.name,
+        wardId: selection.wardId,
+        wardName: selection.wardName,
         day: selection.day,
         policy: week.overridePolicy,
       },
     });
+  }
+
+  protected onDeleteOverride(overrideId: string): void {
+    const selection = this.selectedDay();
+    if (!selection || !selection.day.canOverride) {
+      return;
+    }
+    this.store.deleteOverride(selection.wardId, selection.day.date, overrideId);
   }
 }

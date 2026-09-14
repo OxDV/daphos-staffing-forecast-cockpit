@@ -126,6 +126,8 @@
             <app-ward-week-grid
               [wards]="visibleWards()"
               [dayHeaders]="dayHeaders()"
+              [selectedWardCode]="selectedDay()?.wardCode ?? null"
+              [selectedDate]="selectedDay()?.day?.date ?? null"
               (daySelected)="onDaySelected($event)"
             />
           }
@@ -148,5 +150,8 @@
     [history]="history()"
     [loading]="historyLoading()"
     [error]="historyError()"
+    [deletingOverrideId]="deletingOverrideId()"
+    (correctDemand)="onCorrectDemand()"
+    (deleteOverride)="onDeleteOverride($event)"
   />
 </div>

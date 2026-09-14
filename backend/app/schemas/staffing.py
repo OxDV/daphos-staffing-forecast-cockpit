@@ -78,5 +78,10 @@ class CreateDemandOverrideResponse(ApiModel):
     summary: WardWeekSummaryResponse
 
 
+class DeleteDemandOverrideResponse(ApiModel):
+    day: StaffingDayResponse
+    summary: WardWeekSummaryResponse
+
+
 class DemandOverrideHistoryResponse(ApiModel):
     items: list[DemandOverrideResponse]

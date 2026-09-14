@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import {
   CreateDemandOverrideRequest,
   CreateDemandOverrideResponse,
+  DeleteDemandOverrideResponse,
   DemandOverrideHistoryResponse,
   StaffingWeek,
 } from '../staffing.models';
@@ -28,6 +29,16 @@ export class StaffingApiService {
     return this.http.post<CreateDemandOverrideResponse>(
       `${this.baseUrl}/wards/${wardId}/staffing-days/${serviceDate}/overrides`,
       payload,
+    );
+  }
+
+  deleteOverride(
+    wardId: string,
+    serviceDate: string,
+    overrideId: string,
+  ): Observable<DeleteDemandOverrideResponse> {
+    return this.http.delete<DeleteDemandOverrideResponse>(
+      `${this.baseUrl}/wards/${wardId}/staffing-days/${serviceDate}/overrides/${overrideId}`,
     );
   }
 

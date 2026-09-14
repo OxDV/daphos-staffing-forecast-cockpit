@@ -62,7 +62,61 @@ describe('AuditSidebar', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('#audit-history-list')).toBeTruthy();
+    expect(compiled.querySelector('[data-testid="correct-demand-button"]')).toBeTruthy();
     expect(compiled.textContent).toContain('Needed');
     expect(compiled.textContent).toContain('demo.ward.manager@daphos.test');
+  });
+
+  it('emits correctDemand and hides the button for locked days', () => {
+    const correctSpy = jest.fn();
+    fixture.componentInstance.correctDemand.subscribe(correctSpy);
+    fixture.componentRef.setInput('selectedDay', selected);
+    fixture.componentRef.setInput('history', []);
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('[data-testid="correct-demand-button"]')
+      ?.click();
+    expect(correctSpy).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('selectedDay', {
+      ...selected,
+      day: { ...selected.day, canOverride: false },
+    });
+    fixture.detectChanges();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('[data-testid="correct-demand-button"]'),
+    ).toBeNull();
+  });
+
+  it('emits deleteOverride for editable days and hides delete on locked days', () => {
+    const deleteSpy = jest.fn();
+    fixture.componentInstance.deleteOverride.subscribe(deleteSpy);
+    fixture.componentRef.setInput('selectedDay', selected);
+    fixture.componentRef.setInput('history', history);
+    fixture.componentRef.setInput('deletingOverrideId', null);
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('[data-testid="audit-delete-button-ov-1"]')
+      ?.click();
+    expect(deleteSpy).toHaveBeenCalledWith('ov-1');
+
+    fixture.componentRef.setInput('deletingOverrideId', 'ov-1');
+    fixture.detectChanges();
+    deleteSpy.mockClear();
+    fixture.componentInstance['onDelete']('ov-1');
+    expect(deleteSpy).not.toHaveBeenCalled();
+
+    fixture.componentRef.setInput('selectedDay', {
+      ...selected,
+      day: { ...selected.day, canOverride: false },
+    });
+    fixture.detectChanges();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="audit-delete-button-ov-1"]',
+      ),
+    ).toBeNull();
   });
 });

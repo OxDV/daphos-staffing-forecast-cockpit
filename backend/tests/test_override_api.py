@@ -129,6 +129,54 @@ def test_second_override_keeps_history(
     assert second.summary.manual_correction_count >= 2
 
 
+def test_delete_override_restores_effective_demand(
+    client: TestClient,
+    seeded_session: Session,
+) -> None:
+    ward_id = _ward_id(seeded_session)
+    service_date = "2026-09-16"
+
+    created = client.post(
+        f"/api/v1/wards/{ward_id}/staffing-days/{service_date}/overrides",
+        json={
+            "correctedDemand": 20,
+            "justification": "Temporary surge expected",
+        },
+    )
+    assert created.status_code == 201
+    override_id = created.json()["override"]["id"]
+    forecast = created.json()["day"]["forecastDemand"]
+
+    deleted = client.delete(
+        f"/api/v1/wards/{ward_id}/staffing-days/{service_date}/overrides/{override_id}"
+    )
+    assert deleted.status_code == 200
+    payload = deleted.json()
+    assert payload["day"]["effectiveDemand"] == forecast
+    assert payload["day"]["isCorrected"] is False
+
+    history = client.get(f"/api/v1/wards/{ward_id}/staffing-days/{service_date}/overrides")
+    assert history.status_code == 200
+    assert all(item["id"] != override_id for item in history.json()["items"])
+
+
+def test_delete_override_rejects_past_day_and_unknown_id(
+    client: TestClient,
+    seeded_session: Session,
+) -> None:
+    ward_id = _ward_id(seeded_session)
+    unknown = client.delete(
+        f"/api/v1/wards/{ward_id}/staffing-days/2026-09-16/overrides/{uuid4()}"
+    )
+    assert unknown.status_code == 404
+
+    past_delete = client.delete(
+        f"/api/v1/wards/{ward_id}/staffing-days/2026-09-10/overrides/{uuid4()}"
+    )
+    assert past_delete.status_code == 422
+    assert past_delete.json()["fieldErrors"]["serviceDate"]
+
+
 def test_override_endpoints_return_404_for_unknown_resources(client: TestClient) -> None:
     missing_ward = client.post(
         f"/api/v1/wards/{uuid4()}/staffing-days/2026-09-16/overrides",

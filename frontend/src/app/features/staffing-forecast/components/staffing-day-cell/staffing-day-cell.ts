@@ -15,6 +15,7 @@ import { formatConfidencePercent } from '../../week.utils';
 export class StaffingDayCell {
   readonly wardCode = input.required<string>();
   readonly day = input.required<StaffingDay>();
+  readonly selected = input(false);
   readonly dayActivate = output<StaffingDay>();
 
   protected readonly formatConfidencePercent = formatConfidencePercent;
@@ -36,6 +37,9 @@ export class StaffingDayCell {
     }
     if (this.day().isCorrected) {
       classes.push('staffing-day-cell--corrected');
+    }
+    if (this.selected()) {
+      classes.push('staffing-day-cell--selected');
     }
     return classes.join(' ');
   });

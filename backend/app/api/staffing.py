@@ -13,11 +13,13 @@ from app.persistence.database import get_session
 from app.schemas.staffing import (
     CreateDemandOverrideRequest,
     CreateDemandOverrideResponse,
+    DeleteDemandOverrideResponse,
     DemandOverrideHistoryResponse,
     StaffingWeekResponse,
 )
 from app.services.staffing_service import (
     create_demand_override,
+    delete_demand_override,
     get_override_history,
     get_staffing_week,
 )
@@ -72,3 +74,21 @@ def read_override_history(
     session: Session = Depends(get_db_session),
 ) -> DemandOverrideHistoryResponse:
     return get_override_history(session, ward_id=ward_id, service_date=service_date)
+
+
+@router.delete(
+    "/wards/{ward_id}/staffing-days/{service_date}/overrides/{override_id}",
+    response_model=DeleteDemandOverrideResponse,
+)
+def remove_override(
+    ward_id: UUID,
+    service_date: date,
+    override_id: UUID,
+    session: Session = Depends(get_db_session),
+) -> DeleteDemandOverrideResponse:
+    return delete_demand_override(
+        session,
+        ward_id=ward_id,
+        service_date=service_date,
+        override_id=override_id,
+    )

@@ -59,6 +59,11 @@ export class CockpitPage {
       throw new Error('Editable day cell is missing required data attributes');
     }
     await cell.click();
+    await this.driver.wait(
+      until.elementLocated(By.css('[data-testid="correct-demand-button"]')),
+      5000,
+    );
+    await this.driver.findElement(By.css('[data-testid="correct-demand-button"]')).click();
     await this.driver.wait(until.elementLocated(By.css('[data-testid="override-dialog"]')), 5000);
     return { testId, wardCode };
   }
@@ -110,6 +115,21 @@ export class CockpitPage {
       10000,
     );
     return ((await list.getAttribute('textContent')) ?? '').trim();
+  }
+
+  async deleteFirstAuditRecord(): Promise<void> {
+    const button = await this.driver.wait(
+      until.elementLocated(By.css('[data-testid^="audit-delete-button-"]')),
+      5000,
+    );
+    await button.click();
+  }
+
+  async waitForAuditEmpty(): Promise<void> {
+    await this.driver.wait(async () => {
+      const empty = await this.driver.findElements(By.css('[data-testid="audit-sidebar-empty"]'));
+      return empty.length > 0;
+    }, 10000);
   }
 
   async summaryText(wardCode: string): Promise<string> {

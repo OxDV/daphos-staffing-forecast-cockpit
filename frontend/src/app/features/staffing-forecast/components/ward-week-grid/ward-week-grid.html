@@ -33,11 +33,12 @@
 
         @for (day of ward.days; track day.date) {
           <div class="ward-week-grid__cell min-w-0 px-1 py-1">
-            <app-staffing-day-cell
-              [wardCode]="ward.code"
-              [day]="day"
-              (dayActivate)="onDayActivate(ward, $event)"
-            />
+              <app-staffing-day-cell
+                [wardCode]="ward.code"
+                [day]="day"
+                [selected]="isSelected(ward.code, day.date)"
+                (dayActivate)="onDayActivate(ward, $event)"
+              />
           </div>
         }
 

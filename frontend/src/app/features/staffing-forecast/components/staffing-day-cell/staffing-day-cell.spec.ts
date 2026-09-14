@@ -107,4 +107,15 @@ describe('StaffingDayCell', () => {
 
     expect(emitted).toEqual([editableDay, lockedDay]);
   });
+
+  it('marks the selected day cell', () => {
+    fixture.componentRef.setInput('wardCode', 'B3');
+    fixture.componentRef.setInput('day', editableDay);
+    fixture.componentRef.setInput('selected', true);
+    fixture.detectChanges();
+
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('button')?.className,
+    ).toContain('staffing-day-cell--selected');
+  });
 });

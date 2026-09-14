@@ -6,6 +6,7 @@ import { StaffingApiService } from './staffing-api.service';
 import {
   CreateDemandOverrideRequest,
   CreateDemandOverrideResponse,
+  DeleteDemandOverrideResponse,
   DemandOverride,
   SelectedStaffingDay,
   StaffingWeek,
@@ -29,6 +30,7 @@ export class StaffingWeekStore {
   private readonly historyErrorSignal = signal<string | null>(null);
   private readonly overrideSubmittingSignal = signal(false);
   private readonly overrideErrorSignal = signal<string | null>(null);
+  private readonly deletingOverrideIdSignal = signal<string | null>(null);
 
   readonly weekStart = this.weekStartSignal.asReadonly();
   readonly data = this.dataSignal.asReadonly();
@@ -40,6 +42,7 @@ export class StaffingWeekStore {
   readonly historyError = this.historyErrorSignal.asReadonly();
   readonly overrideSubmitting = this.overrideSubmittingSignal.asReadonly();
   readonly overrideError = this.overrideErrorSignal.asReadonly();
+  readonly deletingOverrideId = this.deletingOverrideIdSignal.asReadonly();
 
   readonly status = computed<CockpitStatus>(() => {
     if (this.loadingSignal()) {
@@ -133,15 +136,9 @@ export class StaffingWeekStore {
 
     return this.api.createOverride(wardId, serviceDate, payload).pipe(
       tap((response) => {
-        this.applyOverrideResult(wardId, response);
+        this.applyDayUpdate(wardId, response);
         this.historySignal.set([response.override, ...this.historySignal()]);
-        const selected = this.selectedDaySignal();
-        if (selected && selected.wardId === wardId && selected.day.date === serviceDate) {
-          this.selectedDaySignal.set({
-            ...selected,
-            day: response.day,
-          });
-        }
+        this.syncSelectedDay(wardId, serviceDate, response.day);
       }),
       catchError((error: unknown) => {
         this.overrideErrorSignal.set(this.mapOverrideError(error));
@@ -151,7 +148,49 @@ export class StaffingWeekStore {
     );
   }
 
-  private applyOverrideResult(wardId: string, response: CreateDemandOverrideResponse): void {
+  deleteOverride(wardId: string, serviceDate: string, overrideId: string): void {
+    if (this.deletingOverrideIdSignal()) {
+      return;
+    }
+
+    this.deletingOverrideIdSignal.set(overrideId);
+    this.historyErrorSignal.set(null);
+
+    this.api
+      .deleteOverride(wardId, serviceDate, overrideId)
+      .pipe(
+        tap((response) => {
+          this.applyDayUpdate(wardId, response);
+          this.historySignal.set(this.historySignal().filter((item) => item.id !== overrideId));
+          this.syncSelectedDay(wardId, serviceDate, response.day);
+        }),
+        catchError(() => {
+          this.historyErrorSignal.set('Unable to delete audit record');
+          return of(null);
+        }),
+        finalize(() => this.deletingOverrideIdSignal.set(null)),
+      )
+      .subscribe();
+  }
+
+  private syncSelectedDay(
+    wardId: string,
+    serviceDate: string,
+    day: CreateDemandOverrideResponse['day'],
+  ): void {
+    const selected = this.selectedDaySignal();
+    if (selected && selected.wardId === wardId && selected.day.date === serviceDate) {
+      this.selectedDaySignal.set({
+        ...selected,
+        day,
+      });
+    }
+  }
+
+  private applyDayUpdate(
+    wardId: string,
+    response: Pick<CreateDemandOverrideResponse, 'day' | 'summary'> | DeleteDemandOverrideResponse,
+  ): void {
     const current = this.dataSignal();
     if (!current) {
       return;

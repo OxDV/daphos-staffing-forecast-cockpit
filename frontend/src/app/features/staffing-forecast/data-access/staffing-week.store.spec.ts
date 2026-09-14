@@ -213,6 +213,98 @@ describe('StaffingWeekStore', () => {
     expect(store.history()).toEqual([]);
   });
 
+  it('deletes an audit record and restores the selected day', () => {
+    store.loadWeek('2026-09-14');
+    httpMock.expectOne(() => true).flush(weekFixture);
+
+    store.selectDay({
+      wardId: 'ward-1',
+      wardCode: 'B3',
+      wardName: 'Ward B3',
+      day: {
+        ...weekFixture.wards[0].days[0],
+        effectiveDemand: 15,
+        isCorrected: true,
+      },
+    });
+    httpMock.expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides').flush({
+      items: [
+        {
+          id: 'ov-1',
+          previousDemand: 12,
+          correctedDemand: 15,
+          justification: 'Needed',
+          correctedBy: 'demo.ward.manager@daphos.test',
+          correctedAt: '2026-09-14T10:00:00Z',
+        },
+      ],
+    });
+
+    store.deleteOverride('ward-1', '2026-09-16', 'ov-1');
+    httpMock.expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides/ov-1').flush({
+      day: {
+        ...weekFixture.wards[0].days[0],
+        effectiveDemand: 12,
+        isCorrected: false,
+        understaffing: 1,
+      },
+      summary: {
+        totalUnderstaffing: 1,
+        manualCorrectionCount: 0,
+        averageAbsoluteDeviation: null,
+      },
+    });
+
+    expect(store.history()).toEqual([]);
+    expect(store.selectedDay()?.day.effectiveDemand).toBe(12);
+    expect(store.data()?.wards[0].days[0].isCorrected).toBe(false);
+    expect(store.deletingOverrideId()).toBeNull();
+  });
+
+  it('maps delete failures into history errors', () => {
+    store.loadWeek('2026-09-14');
+    httpMock.expectOne(() => true).flush(weekFixture);
+
+    store.selectDay({
+      wardId: 'ward-1',
+      wardCode: 'B3',
+      wardName: 'Ward B3',
+      day: weekFixture.wards[0].days[0],
+    });
+    httpMock
+      .expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides')
+      .flush({ items: [] });
+
+    store.deleteOverride('ward-1', '2026-09-16', 'ov-missing');
+    httpMock
+      .expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides/ov-missing')
+      .flush({ detail: 'gone' }, { status: 404, statusText: 'Not Found' });
+
+    expect(store.historyError()).toBe('Unable to delete audit record');
+    expect(store.deletingOverrideId()).toBeNull();
+  });
+
+  it('ignores overlapping delete requests', () => {
+    store.loadWeek('2026-09-14');
+    httpMock.expectOne(() => true).flush(weekFixture);
+
+    store.deleteOverride('ward-1', '2026-09-16', 'ov-1');
+    expect(store.deletingOverrideId()).toBe('ov-1');
+    store.deleteOverride('ward-1', '2026-09-16', 'ov-2');
+
+    const pending = httpMock.match(
+      '/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides/ov-1',
+    );
+    expect(pending).toHaveLength(1);
+    pending[0].flush({
+      day: weekFixture.wards[0].days[0],
+      summary: weekFixture.wards[0].summary,
+    });
+    expect(httpMock.match('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides/ov-2')).toEqual(
+      [],
+    );
+  });
+
   it('applies override without updating an unrelated selection', () => {
     store.loadWeek('2026-09-14');
     httpMock.expectOne(() => true).flush(weekFixture);

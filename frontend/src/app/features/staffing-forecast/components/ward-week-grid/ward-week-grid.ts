@@ -19,6 +19,8 @@ export interface WardDaySelection {
 export class WardWeekGrid {
   readonly wards = input.required<WardWeek[]>();
   readonly dayHeaders = input.required<string[]>();
+  readonly selectedWardCode = input<string | null>(null);
+  readonly selectedDate = input<string | null>(null);
   readonly daySelected = output<WardDaySelection>();
 
   protected readonly formatDayHeading = formatDayHeading;
@@ -29,6 +31,10 @@ export class WardWeekGrid {
 
   protected formatAverageDeviation(value: number | null): string {
     return value === null ? '—' : String(value);
+  }
+
+  protected isSelected(wardCode: string, date: string): boolean {
+    return this.selectedWardCode() === wardCode && this.selectedDate() === date;
   }
 
   protected onDayActivate(ward: WardWeek, day: StaffingDay): void {

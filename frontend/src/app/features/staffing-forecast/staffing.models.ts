@@ -57,6 +57,11 @@ export interface CreateDemandOverrideResponse {
   summary: WardWeekSummary;
 }
 
+export interface DeleteDemandOverrideResponse {
+  day: StaffingDay;
+  summary: WardWeekSummary;
+}
+
 export interface DemandOverrideHistoryResponse {
   items: DemandOverride[];
 }
