@@ -30,8 +30,7 @@ Fullstack take-home: ward managers review a weekly staffing demand forecast, spo
 ├── backend/         # FastAPI API + SQLite
 ├── e2e/             # Selenium + Jest scenarios
 ├── DECISIONS.md     # One-page architecture decisions (submission)
-├── ARCHITECTURE.md  # Longer implementation notes
-├── NICE_TO_HAVE.md  # Deferred ideas
+├── README.md        # Setup and forecast data note
 └── task.md          # Original brief
 ```
 
@@ -125,7 +124,7 @@ The brief asks for a small, deliberate test selection; this repo also includes b
 
 ## Architecture decisions
 
-See **[DECISIONS.md](./DECISIONS.md)** (one page). Longer notes: [ARCHITECTURE.md](./ARCHITECTURE.md).
+See **[DECISIONS.md](./DECISIONS.md)** (one page, as required by the brief).
 
 ## Out of scope / deferred
 
