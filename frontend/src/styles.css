@@ -112,6 +112,36 @@ app-root {
   font-family: var(--font-mono);
 }
 
+.staffing-day-cell--short {
+  box-shadow:
+    0 10px 24px rgba(196, 60, 60, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 0 0 1px rgba(196, 60, 60, 0.18);
+}
+
+.staffing-day-cell--surplus {
+  box-shadow:
+    0 10px 24px rgba(31, 122, 76, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 0 0 1px rgba(31, 122, 76, 0.14);
+}
+
+.staffing-day-cell--low-confidence {
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(26, 35, 50, 0.035),
+      rgba(26, 35, 50, 0.035) 4px,
+      transparent 4px,
+      transparent 8px
+    ),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.28) 55%, rgba(255, 255, 255, 0.16) 100%);
+}
+
+.staffing-day-cell--corrected {
+  border-color: rgba(47, 111, 237, 0.45);
+}
+
 .rise {
   animation: rise 280ms ease-out;
 }

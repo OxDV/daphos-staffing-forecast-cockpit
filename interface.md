@@ -108,7 +108,11 @@ Enhance day tiles:
   - `.staffing-day-cell--balanced`
   - `.staffing-day-cell--surplus`
   - `.staffing-day-cell--low-confidence`
+  - `.staffing-day-cell--medium-confidence`
+  - `.staffing-day-cell--high-confidence`
   - `.staffing-day-cell--corrected`
+
+Low confidence uses a hatch pattern in addition to the text label so color is never the only signal.
 
 ## Step 6 — Backend only
 
