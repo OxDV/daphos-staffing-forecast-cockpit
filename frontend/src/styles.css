@@ -267,15 +267,15 @@ app-staffing-day-cell {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 0.55rem;
+  gap: 0.45rem;
   width: 100%;
   min-width: 0;
   height: 100%;
-  min-height: 8.75rem;
-  padding: 0.7rem 0.65rem;
+  min-height: 7.25rem;
+  padding: 0.55rem 0.5rem;
   text-align: left;
   cursor: pointer;
-  border-radius: 1rem;
+  border-radius: 0.9rem;
   border: 1px solid var(--cell-border);
   box-shadow:
     0 10px 24px rgba(26, 35, 50, 0.08),
@@ -284,6 +284,182 @@ app-staffing-day-cell {
     transform 160ms ease,
     box-shadow 160ms ease,
     border-color 160ms ease;
+}
+
+@media (min-width: 768px) {
+  .staffing-day-cell {
+    min-height: 7.75rem;
+    padding: 0.65rem 0.55rem;
+    border-radius: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .staffing-day-cell {
+    min-height: 8.75rem;
+    gap: 0.55rem;
+    padding: 0.7rem 0.65rem;
+  }
+}
+
+.staffing-day-cell__value {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: clamp(0.9rem, 1.05vw, 1.2rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.staffing-day-cell__demand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.12rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.staffing-day-cell__was {
+  display: block;
+  min-height: 0.65rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  line-height: 1;
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.staffing-day-cell__was--placeholder {
+  visibility: hidden;
+  text-decoration: none;
+}
+
+.ward-week-grid__scroll {
+  height: 100%;
+  overflow: auto;
+}
+
+.ward-week-grid__canvas {
+  min-width: 44rem;
+}
+
+@media (min-width: 1024px) {
+  .ward-week-grid__canvas {
+    min-width: 0;
+  }
+}
+
+.ward-week-grid__header,
+.ward-week-grid__row {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, 5.5rem) repeat(7, minmax(0, 1fr));
+  column-gap: 0.35rem;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .ward-week-grid__header,
+  .ward-week-grid__row {
+    grid-template-columns: minmax(5.5rem, 7rem) repeat(7, minmax(0, 1fr));
+    column-gap: 0.45rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .ward-week-grid__header,
+  .ward-week-grid__row {
+    grid-template-columns: 140px repeat(7, minmax(0, 1fr));
+    column-gap: 0.5rem;
+  }
+}
+
+.ward-week-grid__cell {
+  display: flex;
+  min-width: 0;
+}
+
+.ward-week-grid__cell > app-staffing-day-cell {
+  flex: 1 1 auto;
+}
+
+.ward-week-grid__summary {
+  grid-column: 1 / -1;
+}
+
+.audit-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  border: 0;
+  background: rgba(26, 35, 50, 0.28);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+
+.audit-shell {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 40;
+  width: min(22rem, calc(100vw - 1.5rem));
+  transform: translateX(calc(100% + 1rem));
+  transition: transform 200ms ease;
+  pointer-events: none;
+}
+
+.audit-shell > app-audit-sidebar {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.audit-shell--open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+@media (min-width: 1024px) {
+  .audit-drawer-backdrop {
+    display: none;
+  }
+
+  .audit-shell,
+  .audit-shell--open {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    width: 17.5rem;
+    transform: none;
+    pointer-events: auto;
+    transition: none;
+  }
+}
+
+@media (min-width: 1280px) {
+  .audit-shell,
+  .audit-shell--open {
+    width: 20rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  app-audit-sidebar .audit-sidebar [data-testid='audit-close-button'] {
+    display: none;
+  }
 }
 
 .staffing-day-cell > * {
@@ -306,40 +482,6 @@ app-staffing-day-cell {
 
 .staffing-day-cell__bottom {
   gap: 0.35rem;
-}
-
-.staffing-day-cell__demand {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.staffing-day-cell__was {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  line-height: 1;
-  text-decoration: line-through;
-  opacity: 0.55;
-}
-
-.staffing-day-cell__value {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-mono);
-  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  line-height: 1.05;
 }
 
 .staffing-day-cell__planned {
@@ -383,19 +525,28 @@ app-staffing-day-cell {
 }
 
 .staffing-day-cell__footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.45rem;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.65rem;
   line-height: 1.25;
   color: var(--color-ink-soft);
 }
 
 .staffing-day-cell__corrected {
+  min-height: 0.8125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.65rem;
   font-weight: 600;
+  line-height: 1.25;
   color: var(--color-accent);
+}
+
+.staffing-day-cell__corrected--placeholder {
+  visibility: hidden;
 }
 
 .staffing-day-cell:hover {
@@ -435,19 +586,6 @@ app-staffing-day-cell {
 
 .staffing-day-cell--locked:hover {
   transform: none;
-}
-
-.ward-week-grid__row {
-  min-width: 0;
-}
-
-.ward-week-grid__cell {
-  display: flex;
-  min-width: 0;
-}
-
-.ward-week-grid__cell > app-staffing-day-cell {
-  flex: 1 1 auto;
 }
 
 .audit-history-item {

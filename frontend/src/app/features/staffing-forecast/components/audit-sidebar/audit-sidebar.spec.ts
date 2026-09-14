@@ -119,4 +119,18 @@ describe('AuditSidebar', () => {
       ),
     ).toBeNull();
   });
+
+  it('emits closed when the close button is used', () => {
+    const closedSpy = jest.fn();
+    fixture.componentInstance.closed.subscribe(closedSpy);
+    fixture.componentRef.setInput('selectedDay', selected);
+    fixture.componentRef.setInput('history', []);
+    fixture.componentRef.setInput('closable', true);
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('[data-testid="audit-close-button"]')
+      ?.click();
+    expect(closedSpy).toHaveBeenCalledTimes(1);
+  });
 });

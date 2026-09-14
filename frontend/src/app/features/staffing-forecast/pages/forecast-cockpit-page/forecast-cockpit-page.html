@@ -1,14 +1,14 @@
 <div
   id="forecast-cockpit"
-  class="forecast-cockpit relative mx-auto flex h-[100dvh] min-h-screen w-[90%] max-w-none gap-5 py-5"
+  class="forecast-cockpit relative mx-auto flex h-[100dvh] min-h-screen w-full max-w-[1680px] gap-3 px-3 py-3 md:gap-4 md:px-4 md:py-4 lg:gap-5 lg:px-5 lg:py-5"
   data-testid="forecast-cockpit"
 >
   <aside
     id="ward-sidebar"
-    class="ward-sidebar glass hidden w-56 shrink-0 flex-col rounded-3xl p-5 md:flex"
+    class="ward-sidebar glass hidden w-44 shrink-0 flex-col rounded-3xl p-4 md:flex lg:w-52 lg:p-5 xl:w-56"
     data-testid="ward-sidebar"
   >
-    <div id="brand-block" class="relative z-[1] mb-6 flex items-center gap-3">
+    <div id="brand-block" class="relative z-[1] mb-5 flex items-center gap-3 lg:mb-6">
       <span id="brand-mark" class="brand-mark">D</span>
       <div class="leading-tight">
         <div id="brand-name" class="text-base font-semibold tracking-tight">DaphOS</div>
@@ -33,7 +33,7 @@
       @if (data(); as week) {
         @for (ward of week.wards; track ward.id) {
           <label
-            class="ward-sidebar__item flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-ink-soft hover:bg-white/35"
+            class="ward-sidebar__item flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-ink-soft hover:bg-white/35 lg:px-3"
             [attr.id]="'ward-sidebar-item-' + ward.code"
             [attr.data-testid]="'ward-sidebar-item-' + ward.code"
           >
@@ -76,7 +76,7 @@
 
   <main
     id="forecast-main"
-    class="forecast-main flex min-h-0 min-w-0 flex-1 flex-col gap-5"
+    class="forecast-main flex min-h-0 min-w-0 flex-1 flex-col gap-3 md:gap-4 lg:gap-5"
     data-testid="forecast-main"
   >
     <app-week-navigation
@@ -92,7 +92,7 @@
         @case ('loading') {
           <section
             id="cockpit-loading-state"
-            class="glass flex h-full items-center justify-center gap-3 rounded-3xl p-8 text-ink-soft"
+            class="glass flex h-full items-center justify-center gap-3 rounded-3xl p-6 text-ink-soft md:p-8"
             data-testid="cockpit-loading-state"
           >
             <mat-spinner diameter="32"></mat-spinner>
@@ -102,7 +102,7 @@
         @case ('error') {
           <section
             id="cockpit-error-state"
-            class="glass h-full rounded-3xl p-8"
+            class="glass h-full rounded-3xl p-6 md:p-8"
             data-testid="cockpit-error-state"
           >
             <p id="cockpit-error-message" class="relative z-[1]">{{ error() }}</p>
@@ -122,7 +122,7 @@
         @case ('empty') {
           <section
             id="cockpit-empty-state"
-            class="glass h-full rounded-3xl p-8 text-ink-soft"
+            class="glass h-full rounded-3xl p-6 text-ink-soft md:p-8"
             data-testid="cockpit-empty-state"
           >
             No staffing data is available for this week.
@@ -132,7 +132,7 @@
           @if (visibleWards().length === 0) {
             <section
               id="cockpit-no-wards-state"
-              class="glass h-full rounded-3xl p-8 text-ink-soft"
+              class="glass h-full rounded-3xl p-6 text-ink-soft md:p-8"
               data-testid="cockpit-no-wards-state"
             >
               Select at least one ward in the sidebar to display the week grid.
@@ -150,7 +150,7 @@
         @default {
           <section
             id="cockpit-idle-state"
-            class="glass h-full rounded-3xl p-8 text-ink-soft"
+            class="glass h-full rounded-3xl p-6 text-ink-soft md:p-8"
             data-testid="cockpit-idle-state"
           >
             Preparing cockpit…
@@ -160,13 +160,32 @@
     </div>
   </main>
 
-  <app-audit-sidebar
-    [selectedDay]="selectedDay()"
-    [history]="history()"
-    [loading]="historyLoading()"
-    [error]="historyError()"
-    [deletingOverrideId]="deletingOverrideId()"
-    (correctDemand)="onCorrectDemand()"
-    (deleteOverride)="onDeleteOverride($event)"
-  />
+  @if (selectedDay()) {
+    <button
+      id="audit-drawer-backdrop"
+      type="button"
+      class="audit-drawer-backdrop"
+      data-testid="audit-drawer-backdrop"
+      aria-label="Dismiss audit panel"
+      (click)="onClearSelection()"
+    ></button>
+  }
+
+  <div
+    class="audit-shell"
+    [class.audit-shell--open]="selectedDay() !== null"
+    data-testid="audit-shell"
+  >
+    <app-audit-sidebar
+      [selectedDay]="selectedDay()"
+      [history]="history()"
+      [loading]="historyLoading()"
+      [error]="historyError()"
+      [deletingOverrideId]="deletingOverrideId()"
+      [closable]="true"
+      (correctDemand)="onCorrectDemand()"
+      (deleteOverride)="onDeleteOverride($event)"
+      (closed)="onClearSelection()"
+    />
+  </div>
 </div>

@@ -18,9 +18,11 @@ export class AuditSidebar {
   readonly loading = input(false);
   readonly error = input<string | null>(null);
   readonly deletingOverrideId = input<string | null>(null);
+  readonly closable = input(false);
 
   readonly correctDemand = output<void>();
   readonly deleteOverride = output<string>();
+  readonly closed = output<void>();
 
   protected readonly canCorrect = computed(() => this.selectedDay()?.day.canOverride === true);
 
