@@ -1,7 +1,4 @@
-import {
-  confidenceBand,
-  staffingStatus,
-} from './staffing-status.utils';
+import { confidenceBand, staffingStatus } from './staffing-status.utils';
 
 describe('staffing-status.utils', () => {
   it('classifies short, balanced, and surplus staffing', () => {

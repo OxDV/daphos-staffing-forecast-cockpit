@@ -1,23 +1,25 @@
 # DaphOS Staffing Forecast Cockpit
 
-Fullstack coding challenge for reviewing and correcting hospital ward staffing demand forecasts.
+Fullstack take-home for reviewing and correcting hospital ward staffing demand forecasts.
 
 ## Repository layout
 
 ```text
 codingChallenge/
-├── frontend/   # Angular + TypeScript
-├── backend/    # FastAPI + SQLite
-├── ARCHITECTURE.md
-├── NICE_TO_HAVE.md
-└── task.md
+├── frontend/        # Angular + Angular Material + Tailwind layout
+├── backend/         # FastAPI + SQLAlchemy + SQLite
+├── e2e/             # Selenium WebDriver + Jest
+├── ARCHITECTURE.md  # Implementation plan
+├── DECISIONS.md     # Brief architecture decisions for submission
+├── NICE_TO_HAVE.md  # Optional follow-ups
+└── task.md          # Original brief
 ```
 
 ## Prerequisites
 
 - Node.js 20+
 - Python 3.11+
-- npm
+- Chrome (for Selenium E2E)
 
 ## Backend
 
@@ -28,21 +30,21 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 alembic upgrade head
 python -m app.seed
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-API docs: http://localhost:8000/docs
+API docs: http://127.0.0.1:8000/docs
 
-Example weekly endpoint:
+Health:
+
+- http://127.0.0.1:8000/health/live
+- http://127.0.0.1:8000/health/ready
+
+Reset the deterministic dataset:
 
 ```bash
-curl "http://localhost:8000/api/v1/staffing-weeks?weekStart=2026-09-14"
+python -m app.seed --reset
 ```
-
-Health checks:
-
-- http://localhost:8000/health/live
-- http://localhost:8000/health/ready
 
 ## Frontend
 
@@ -52,9 +54,9 @@ npm install
 npm start
 ```
 
-App: http://localhost:4200
+App: http://127.0.0.1:4200
 
-The Angular dev server proxies `/api` to `http://localhost:8000`.
+The Angular dev server proxies `/api` to `http://127.0.0.1:8000`.
 
 ## Tests
 
@@ -63,19 +65,48 @@ The Angular dev server proxies `/api` to `http://localhost:8000`.
 cd backend
 source .venv/bin/activate
 pytest --cov=app --cov-report=term-missing
+ruff check app tests
+mypy app
 
 # Frontend
 cd frontend
+npm test -- --coverage --watchAll=false
+npm run typecheck
+npm run lint:format
+
+# E2E (frontend + backend must be running)
+cd backend
+DAPHOS_ALLOW_TEST_RESET=true uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+# another terminal
+cd frontend && npm start
+
+# another terminal
+cd e2e
+npm install
 npm test
-npm run test:coverage
 ```
 
 ## Forecast data
 
-Forecast values come from a deterministic generated seed dataset (`python -m app.seed`).
+Forecast values come from a deterministic generated seed (`python -m app.seed`).
 The generator uses a fixed random seed and dates relative to the current ISO week in
-`Europe/Berlin`. No trained model is used.
+`Europe/Berlin`. No trained model is used. The seed spans five weeks (one past, current,
+three future) for three wards and includes one pre-seeded override for audit history.
 
-## Architecture
+## Architecture summary
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for the required implementation plan and [NICE_TO_HAVE.md](./NICE_TO_HAVE.md) for optional follow-ups such as Stryker and Docker.
+See [DECISIONS.md](./DECISIONS.md) for the one-page submission write-up and
+[ARCHITECTURE.md](./ARCHITECTURE.md) for the full implementation plan.
+
+## Unfinished / deferred
+
+Intentionally out of scope or deferred:
+
+- authentication (hard-coded audit user is used);
+- optimistic concurrency;
+- PostgreSQL / production deployment;
+- ESLint project config;
+- Stryker mutation testing;
+- Docker Compose;
+- multi-browser Selenium.

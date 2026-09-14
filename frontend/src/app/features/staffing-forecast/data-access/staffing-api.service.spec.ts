@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { StaffingApiService } from './staffing-api.service';
-import { StaffingWeek } from '../staffing.models';
+import { CreateDemandOverrideResponse, StaffingWeek } from '../staffing.models';
 
 describe('StaffingApiService', () => {
   let service: StaffingApiService;
@@ -39,12 +39,83 @@ describe('StaffingApiService', () => {
     });
 
     const request = httpMock.expectOne(
-      (req) =>
-        req.url === '/api/v1/staffing-weeks' && req.params.get('weekStart') === '2026-09-14',
+      (req) => req.url === '/api/v1/staffing-weeks' && req.params.get('weekStart') === '2026-09-14',
     );
     expect(request.request.method).toBe('GET');
     request.flush(response);
-
     expect(actual).toEqual(response);
+  });
+
+  it('creates overrides and loads history', () => {
+    const createResponse = {
+      override: {
+        id: 'ov-1',
+        previousDemand: 12,
+        correctedDemand: 14,
+        justification: 'Needed',
+        correctedBy: 'demo.ward.manager@daphos.test',
+        correctedAt: '2026-09-14T10:00:00Z',
+      },
+      day: {
+        date: '2026-09-16',
+        forecastDemand: 12,
+        effectiveDemand: 14,
+        plannedStaffing: 11,
+        confidence: 0.7,
+        isCorrected: true,
+        canOverride: true,
+        understaffing: 3,
+      },
+      summary: {
+        totalUnderstaffing: 3,
+        manualCorrectionCount: 1,
+        averageAbsoluteDeviation: 2,
+      },
+    } satisfies CreateDemandOverrideResponse;
+
+    let created: CreateDemandOverrideResponse | undefined;
+    service
+      .createOverride('ward-1', '2026-09-16', {
+        correctedDemand: 14,
+        justification: 'Needed',
+      })
+      .subscribe((response) => {
+        created = response;
+      });
+
+    const createRequest = httpMock.expectOne(
+      '/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides',
+    );
+    expect(createRequest.request.method).toBe('POST');
+    createRequest.flush(createResponse);
+    expect(created).toEqual(createResponse);
+
+    let historyItems = 0;
+    service.getOverrideHistory('ward-1', '2026-09-16').subscribe((response) => {
+      historyItems = response.items.length;
+    });
+    const historyRequest = httpMock.expectOne(
+      '/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides',
+    );
+    historyRequest.flush({ items: [createResponse.override] });
+    expect(historyItems).toBe(1);
+
+    let deletedDayDemand = -1;
+    service.deleteOverride('ward-1', '2026-09-16', 'ov-1').subscribe((response) => {
+      deletedDayDemand = response.day.effectiveDemand;
+    });
+    const deleteRequest = httpMock.expectOne(
+      '/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides/ov-1',
+    );
+    expect(deleteRequest.request.method).toBe('DELETE');
+    deleteRequest.flush({
+      day: { ...createResponse.day, effectiveDemand: 12, isCorrected: false, understaffing: 1 },
+      summary: {
+        totalUnderstaffing: 1,
+        manualCorrectionCount: 0,
+        averageAbsoluteDeviation: null,
+      },
+    });
+    expect(deletedDayDemand).toBe(12);
   });
 });

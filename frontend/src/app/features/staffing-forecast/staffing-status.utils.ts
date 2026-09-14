@@ -17,7 +17,10 @@ function formatAmount(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '');
 }
 
-export function staffingStatus(effectiveDemand: number, plannedStaffing: number): StaffingStatusView {
+export function staffingStatus(
+  effectiveDemand: number,
+  plannedStaffing: number,
+): StaffingStatusView {
   const gap = effectiveDemand - plannedStaffing;
 
   if (gap > 0) {

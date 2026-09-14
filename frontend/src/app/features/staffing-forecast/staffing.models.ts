@@ -36,3 +36,39 @@ export interface StaffingWeek {
   overridePolicy: OverridePolicy;
   wards: WardWeek[];
 }
+
+export interface DemandOverride {
+  id: string;
+  previousDemand: number;
+  correctedDemand: number;
+  justification: string;
+  correctedBy: string;
+  correctedAt: string;
+}
+
+export interface CreateDemandOverrideRequest {
+  correctedDemand: number;
+  justification: string;
+}
+
+export interface CreateDemandOverrideResponse {
+  override: DemandOverride;
+  day: StaffingDay;
+  summary: WardWeekSummary;
+}
+
+export interface DeleteDemandOverrideResponse {
+  day: StaffingDay;
+  summary: WardWeekSummary;
+}
+
+export interface DemandOverrideHistoryResponse {
+  items: DemandOverride[];
+}
+
+export interface SelectedStaffingDay {
+  wardId: string;
+  wardCode: string;
+  wardName: string;
+  day: StaffingDay;
+}

@@ -1,0 +1,113 @@
+<aside
+  id="audit-sidebar"
+  class="audit-sidebar glass hidden w-80 shrink-0 flex-col rounded-3xl p-5 xl:flex"
+  data-testid="audit-sidebar"
+>
+  <div id="audit-sidebar-header" class="relative z-[1] mb-4 flex items-center justify-between">
+    <h2 id="audit-sidebar-title" class="text-sm font-semibold tracking-tight">Audit history</h2>
+    <span
+      id="audit-sidebar-timezone"
+      class="text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+    >
+      UTC
+    </span>
+  </div>
+
+  <div class="relative z-[1] mb-4">
+    @if (selectedDay(); as selection) {
+      <p id="audit-sidebar-selection" class="text-xs text-ink-soft" data-testid="audit-sidebar-selection">
+        {{ selection.wardName }} · {{ selection.day.date }}
+      </p>
+      @if (canCorrect()) {
+        <button
+          id="correct-demand-button"
+          type="button"
+          class="mt-3 w-full cursor-pointer rounded-xl bg-accent px-4 py-2.5 text-sm text-accent-ink hover:opacity-90"
+          data-testid="correct-demand-button"
+          (click)="correctDemand.emit()"
+        >
+          Correct demand
+        </button>
+      } @else {
+        <p id="audit-sidebar-locked-note" class="mt-2 text-xs text-ink-faint">
+          Past days are locked and cannot be corrected.
+        </p>
+      }
+    }
+  </div>
+
+  <div class="relative z-[1] min-h-0 flex-1 overflow-auto">
+    @if (!selectedDay()) {
+      <p
+        id="audit-sidebar-placeholder"
+        class="text-sm text-ink-soft"
+        data-testid="audit-sidebar-placeholder"
+      >
+        Select a day to view audit history
+      </p>
+    } @else if (loading()) {
+      <div
+        id="audit-sidebar-loading"
+        class="flex items-center gap-2"
+        data-testid="audit-sidebar-loading"
+      >
+        <mat-spinner diameter="24"></mat-spinner>
+        <span class="text-sm text-ink-soft">Loading history…</span>
+      </div>
+    } @else if (error(); as message) {
+      <p id="audit-sidebar-error" class="text-sm text-short" data-testid="audit-sidebar-error">
+        {{ message }}
+      </p>
+    } @else if (history().length === 0) {
+      <p id="audit-sidebar-empty" class="text-sm text-ink-soft" data-testid="audit-sidebar-empty">
+        No corrections recorded for {{ selectedDay()?.wardName }} · {{ selectedDay()?.day?.date }}.
+      </p>
+    } @else {
+      <ol id="audit-history-list" class="space-y-3 text-[12px]" data-testid="audit-history-list">
+        @for (item of history(); track item.id) {
+          <li
+            class="audit-history-item p-3"
+            [attr.id]="'audit-history-item-' + item.id"
+            [attr.data-testid]="'audit-history-item-' + item.id"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-medium">{{ item.correctedBy }}</span>
+              <div class="flex items-center gap-1">
+                <span class="font-mono text-[10px] text-ink-faint">
+                  {{ item.correctedAt | date: 'HH:mm' : 'UTC' }}
+                </span>
+                @if (canCorrect()) {
+                  <button
+                    type="button"
+                    class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-ink-faint hover:bg-short/10 hover:text-short"
+                    [attr.id]="'audit-delete-button-' + item.id"
+                    [attr.data-testid]="'audit-delete-button-' + item.id"
+                    [disabled]="deletingOverrideId() === item.id"
+                    [attr.aria-label]="'Delete audit record'"
+                    (click)="onDelete(item.id)"
+                  >
+                    @if (deletingOverrideId() === item.id) {
+                      <mat-spinner diameter="14"></mat-spinner>
+                    } @else {
+                      <mat-icon class="!h-4 !w-4 !text-[16px]">delete</mat-icon>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="mt-1 font-mono text-[11px] text-ink-soft">
+              {{ selectedDay()?.wardName }} · {{ selectedDay()?.day?.date }}
+              <br />
+              <span class="text-ink-faint">{{ item.previousDemand }}</span>
+              →
+              <span>{{ item.correctedDemand }}</span>
+            </div>
+            <div class="mt-1.5 text-[11px] text-ink-soft">
+              {{ item.justification || 'No justification provided' }}
+            </div>
+          </li>
+        }
+      </ol>
+    }
+  </div>
+</aside>

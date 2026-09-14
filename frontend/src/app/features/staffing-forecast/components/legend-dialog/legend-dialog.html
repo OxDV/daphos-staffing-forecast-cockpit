@@ -1,0 +1,98 @@
+<div class="legend-dialog relative z-[1] p-1" data-testid="legend-dialog">
+  <header id="legend-dialog-header" class="mb-5 px-1">
+    <h2 id="legend-dialog-title" class="text-lg font-semibold tracking-tight">
+      How to read a day card
+    </h2>
+    <p id="legend-dialog-subtitle" class="mt-1 text-sm text-ink-soft">
+      Each tile is one ward-day. Borders and labels show staffing risk; corrections keep an audit
+      trail.
+    </p>
+  </header>
+
+  <div class="legend-dialog__layout px-1">
+    <div class="legend-dialog__sample-wrap">
+      <div
+        class="staffing-day-cell staffing-day-cell--short staffing-day-cell--corrected legend-dialog__sample"
+        aria-hidden="true"
+      >
+        <div class="staffing-day-cell__top">
+          <div class="staffing-day-cell__demand">
+            <span class="staffing-day-cell__was">11.93</span>
+            <span class="staffing-day-cell__value">13.93</span>
+          </div>
+          <div class="staffing-day-cell__planned">Plan 8.93</div>
+        </div>
+        <div class="staffing-day-cell__bottom">
+          <div class="staffing-day-cell__status text-short">
+            <mat-icon class="staffing-day-cell__icon">arrow_upward</mat-icon>
+            <span class="staffing-day-cell__status-text">Short 5</span>
+          </div>
+          <div class="staffing-day-cell__footer">
+            <span>58% · Low</span>
+            <span class="staffing-day-cell__corrected">Corrected</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ol class="legend-dialog__notes space-y-3 text-sm text-ink-soft">
+      <li>
+        <span class="legend-dialog__key font-mono text-ink">11.93</span>
+        struck-through forecast before the correction.
+      </li>
+      <li>
+        <span class="legend-dialog__key font-mono text-ink">13.93</span>
+        effective demand used for planning (latest correction, or forecast if none).
+      </li>
+      <li>
+        <span class="legend-dialog__key font-mono text-ink">Plan 8.93</span>
+        nurses already planned for that day.
+      </li>
+      <li>
+        <span class="legend-dialog__key text-short">Short 5</span>
+        gap when demand exceeds plan. Surplus is green, Balanced is blue. The thin border uses the
+        same color.
+      </li>
+      <li>
+        <span class="legend-dialog__key font-mono text-ink">58% · Low</span>
+        forecast confidence band (Low / Medium / High).
+      </li>
+      <li>
+        <span class="legend-dialog__key text-[var(--color-accent)]">Corrected</span>
+        a ward manager overrode demand. Open the day to see audit history and edit or delete
+        entries.
+      </li>
+      <li>
+        <span class="legend-dialog__key text-ink">Locked · past</span>
+        past days cannot be corrected; history stays read-only.
+      </li>
+    </ol>
+  </div>
+
+  <div class="mt-6 flex flex-col gap-4 px-1 sm:flex-row sm:items-center sm:justify-between">
+    <label
+      id="legend-dont-show-again"
+      class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft"
+      data-testid="legend-dont-show-again"
+    >
+      <input
+        id="legend-dont-show-again-input"
+        type="checkbox"
+        class="size-4 accent-[var(--color-accent)]"
+        data-testid="legend-dont-show-again-input"
+        [checked]="dontShowAgain()"
+        (change)="onDontShowAgainChange($event)"
+      />
+      <span>Don’t show this again on startup</span>
+    </label>
+    <button
+      id="legend-close-button"
+      type="button"
+      class="cursor-pointer rounded-xl bg-accent px-4 py-2.5 text-sm text-accent-ink hover:opacity-90"
+      data-testid="legend-close-button"
+      (click)="onClose()"
+    >
+      Got it
+    </button>
+  </div>
+</div>

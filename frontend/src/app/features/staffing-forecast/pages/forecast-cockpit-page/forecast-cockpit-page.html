@@ -5,49 +5,72 @@
 >
   <aside
     id="ward-sidebar"
-    class="ward-sidebar glass hidden w-52 shrink-0 flex-col rounded-3xl p-5 md:flex"
+    class="ward-sidebar glass hidden w-56 shrink-0 flex-col rounded-3xl p-5 md:flex"
     data-testid="ward-sidebar"
   >
-    <div id="brand-block" class="brand-block mb-6 flex items-center gap-3">
-      <span
-        id="brand-mark"
-        class="brand-block__mark grid size-9 place-items-center rounded-xl bg-accent text-xs font-bold text-accent-ink"
-      >
-        D
-      </span>
-      <div class="brand-block__copy leading-tight">
-        <div id="brand-name" class="brand-block__name font-display text-base font-semibold tracking-tight">
-          DaphOS
-        </div>
-        <div id="brand-subtitle" class="brand-block__subtitle text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+    <div id="brand-block" class="relative z-[1] mb-6 flex items-center gap-3">
+      <span id="brand-mark" class="brand-mark">D</span>
+      <div class="leading-tight">
+        <div id="brand-name" class="text-base font-semibold tracking-tight">DaphOS</div>
+        <div id="brand-subtitle" class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">
           Forecast
         </div>
       </div>
     </div>
 
-    <div id="ward-sidebar-label" class="mb-2 text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+    <div
+      id="ward-sidebar-label"
+      class="relative z-[1] mb-2 text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+    >
       Wards
     </div>
-    <nav id="ward-sidebar-nav" class="ward-sidebar__nav flex flex-col gap-1.5 text-sm" aria-label="Wards">
+    <div
+      id="ward-sidebar-nav"
+      class="relative z-[1] flex flex-col gap-1.5 text-sm"
+      role="group"
+      aria-label="Visible wards"
+    >
       @if (data(); as week) {
         @for (ward of week.wards; track ward.id) {
-          <a
-            class="ward-sidebar__item rounded-xl px-3 py-2 text-left text-ink-soft hover:bg-ink/5"
+          <label
+            class="ward-sidebar__item flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-ink-soft hover:bg-white/35"
             [attr.id]="'ward-sidebar-item-' + ward.code"
             [attr.data-testid]="'ward-sidebar-item-' + ward.code"
-            [attr.href]="'#ward-row-' + ward.code"
           >
-            {{ ward.name }} · {{ ward.code }}
-          </a>
+            <input
+              class="ward-sidebar__checkbox size-4 accent-[var(--color-accent)]"
+              type="checkbox"
+              [attr.id]="'ward-visibility-' + ward.code"
+              [attr.data-testid]="'ward-visibility-' + ward.code"
+              [checked]="isWardVisible(ward.id)"
+              (change)="onWardVisibilityChange(ward.id, $event)"
+            />
+            <span class="min-w-0 truncate">{{ ward.name }} · {{ ward.code }}</span>
+          </label>
         }
       } @else {
         <p id="ward-sidebar-empty" class="text-[13px] text-ink-faint">Waiting for week data</p>
       }
-    </nav>
+    </div>
 
-    <div id="ward-sidebar-week" class="mt-auto pt-5 text-[11px] text-ink-faint">
-      Week
-      <span class="font-mono text-ink-soft">{{ data()?.weekStart ?? '—' }}</span>
+    <div
+      id="ward-sidebar-week"
+      class="relative z-[1] mt-auto flex items-center justify-between gap-2 pt-5 text-[11px] text-ink-faint"
+    >
+      <div>
+        Week
+        <span class="font-mono text-ink-soft">{{ data()?.weekStart ?? '—' }}</span>
+      </div>
+      <button
+        id="cockpit-legend-button"
+        type="button"
+        class="cockpit-legend-button inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-ink-faint hover:bg-white/40 hover:text-ink"
+        data-testid="cockpit-legend-button"
+        aria-label="Explain day cards and audit"
+        (click)="onOpenLegend()"
+      >
+        <mat-icon class="!h-4 !w-4 !text-[16px]">priority_high</mat-icon>
+      </button>
     </div>
   </aside>
 
@@ -64,28 +87,31 @@
       (nextWeek)="onNextWeek()"
     />
 
-    <div id="forecast-main-content" class="forecast-main__content min-h-0 flex-1 overflow-auto">
+    <div id="forecast-main-content" class="min-h-0 flex-1 overflow-auto">
       @switch (status()) {
         @case ('loading') {
           <section
             id="cockpit-loading-state"
-            class="cockpit-state glass h-full rounded-3xl p-8 text-base text-ink-soft"
+            class="glass flex h-full items-center justify-center gap-3 rounded-3xl p-8 text-ink-soft"
             data-testid="cockpit-loading-state"
           >
-            Loading staffing week…
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Loading staffing week…</span>
           </section>
         }
         @case ('error') {
           <section
             id="cockpit-error-state"
-            class="cockpit-state glass h-full rounded-3xl p-8"
+            class="glass h-full rounded-3xl p-8"
             data-testid="cockpit-error-state"
           >
-            <p id="cockpit-error-message" class="text-base text-ink">{{ error() }}</p>
+            <p id="cockpit-error-message" class="relative z-[1]">{{ error() }}</p>
             <button
               id="cockpit-retry-button"
+              mat-flat-button
+              color="primary"
               type="button"
-              class="mt-4 rounded-xl bg-accent px-4 py-2 text-sm text-accent-ink"
+              class="relative z-[1] mt-4"
               data-testid="cockpit-retry-button"
               (click)="onRetry()"
             >
@@ -96,21 +122,35 @@
         @case ('empty') {
           <section
             id="cockpit-empty-state"
-            class="cockpit-state glass h-full rounded-3xl p-8 text-base text-ink-soft"
+            class="glass h-full rounded-3xl p-8 text-ink-soft"
             data-testid="cockpit-empty-state"
           >
             No staffing data is available for this week.
           </section>
         }
         @case ('ready') {
-          @if (data(); as week) {
-            <app-ward-week-grid [wards]="week.wards" [dayHeaders]="dayHeaders()" />
+          @if (visibleWards().length === 0) {
+            <section
+              id="cockpit-no-wards-state"
+              class="glass h-full rounded-3xl p-8 text-ink-soft"
+              data-testid="cockpit-no-wards-state"
+            >
+              Select at least one ward in the sidebar to display the week grid.
+            </section>
+          } @else {
+            <app-ward-week-grid
+              [wards]="visibleWards()"
+              [dayHeaders]="dayHeaders()"
+              [selectedWardCode]="selectedDay()?.wardCode ?? null"
+              [selectedDate]="selectedDay()?.day?.date ?? null"
+              (daySelected)="onDaySelected($event)"
+            />
           }
         }
         @default {
           <section
             id="cockpit-idle-state"
-            class="cockpit-state glass h-full rounded-3xl p-8 text-base text-ink-soft"
+            class="glass h-full rounded-3xl p-8 text-ink-soft"
             data-testid="cockpit-idle-state"
           >
             Preparing cockpit…
@@ -120,21 +160,13 @@
     </div>
   </main>
 
-  <aside
-    id="audit-sidebar"
-    class="audit-sidebar glass hidden w-80 shrink-0 flex-col rounded-3xl p-5 xl:flex"
-    data-testid="audit-sidebar"
-  >
-    <div id="audit-sidebar-header" class="mb-4 flex items-center justify-between">
-      <h2 id="audit-sidebar-title" class="font-display text-sm font-semibold tracking-tight">
-        Audit history
-      </h2>
-      <span id="audit-sidebar-timezone" class="text-[11px] uppercase tracking-[0.14em] text-ink-faint">
-        UTC
-      </span>
-    </div>
-    <p id="audit-sidebar-placeholder" class="text-sm text-ink-soft" data-testid="audit-sidebar-placeholder">
-      Select a day to view audit history
-    </p>
-  </aside>
+  <app-audit-sidebar
+    [selectedDay]="selectedDay()"
+    [history]="history()"
+    [loading]="historyLoading()"
+    [error]="historyError()"
+    [deletingOverrideId]="deletingOverrideId()"
+    (correctDemand)="onCorrectDemand()"
+    (deleteOverride)="onDeleteOverride($event)"
+  />
 </div>

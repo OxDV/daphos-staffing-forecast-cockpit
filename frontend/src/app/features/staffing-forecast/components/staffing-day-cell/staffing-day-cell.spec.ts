@@ -52,8 +52,12 @@ describe('StaffingDayCell', () => {
     expect(button?.className).toContain('staffing-day-cell--low-confidence');
     expect(button?.getAttribute('data-staffing-status')).toBe('short');
     expect(button?.getAttribute('data-confidence-band')).toBe('low');
-    expect(compiled.querySelector('[data-testid="staffing-status"]')?.textContent).toContain('Short 3');
-    expect(compiled.querySelector('[data-testid="confidence-label"]')?.textContent).toContain('Low');
+    expect(compiled.querySelector('[data-testid="staffing-status"]')?.textContent).toContain(
+      'Short 3',
+    );
+    expect(compiled.querySelector('[data-testid="confidence-label"]')?.textContent).toContain(
+      'Low',
+    );
   });
 
   it('renders a locked day cell', () => {
@@ -79,6 +83,42 @@ describe('StaffingDayCell', () => {
     const button = compiled.querySelector('#day-cell-ICU-2026-09-15');
     expect(button?.className).toContain('staffing-day-cell--corrected');
     expect(compiled.querySelector('[data-testid="forecast-demand"]')?.textContent).toContain('12');
-    expect(compiled.querySelector('[data-testid="corrected-marker"]')?.textContent).toContain('Corrected');
+    expect(compiled.querySelector('[data-testid="corrected-marker"]')?.textContent).toContain(
+      'Corrected',
+    );
+    expect(compiled.querySelector('[data-testid="confidence-label"]')?.textContent).toContain(
+      'Medium',
+    );
+  });
+
+  it('emits dayActivate for editable and locked cells', () => {
+    const emitted: StaffingDay[] = [];
+    fixture.componentInstance.dayActivate.subscribe((day) => emitted.push(day));
+
+    fixture.componentRef.setInput('wardCode', 'B3');
+    fixture.componentRef.setInput('day', editableDay);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement)
+      .querySelector('button')
+      ?.dispatchEvent(new Event('click'));
+
+    fixture.componentRef.setInput('day', lockedDay);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement)
+      .querySelector('button')
+      ?.dispatchEvent(new Event('click'));
+
+    expect(emitted).toEqual([editableDay, lockedDay]);
+  });
+
+  it('marks the selected day cell', () => {
+    fixture.componentRef.setInput('wardCode', 'B3');
+    fixture.componentRef.setInput('day', editableDay);
+    fixture.componentRef.setInput('selected', true);
+    fixture.detectChanges();
+
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('button')?.className,
+    ).toContain('staffing-day-cell--selected');
   });
 });

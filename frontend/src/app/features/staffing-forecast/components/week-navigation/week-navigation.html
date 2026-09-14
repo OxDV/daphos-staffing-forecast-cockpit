@@ -3,29 +3,29 @@
   class="week-navigation glass flex flex-wrap items-center justify-between gap-4 rounded-3xl px-5 py-4"
   data-testid="week-navigation"
 >
-  <div id="week-navigation-controls" class="week-navigation__controls flex items-center gap-3">
+  <div class="relative z-[1] flex items-center gap-3">
     <button
       id="week-previous-button"
+      mat-icon-button
       type="button"
-      class="week-navigation__previous rounded-xl bg-ink/5 px-3 py-2 text-base text-ink-soft hover:bg-ink/10"
-      data-testid="week-previous-button"
       aria-label="Previous week"
+      data-testid="week-previous-button"
       (click)="previousWeek.emit()"
     >
-      ←
+      <mat-icon>chevron_left</mat-icon>
     </button>
 
-    <div id="week-range" class="week-navigation__range min-w-52 text-center">
-      <h1
+    <div id="week-range" class="min-w-52 text-center">
+      <div
         id="week-range-label"
-        class="week-navigation__range-label font-display text-base font-semibold tracking-tight"
+        class="text-base font-semibold tracking-tight"
         data-testid="week-range-label"
       >
         {{ weekRangeLabel() }}
-      </h1>
+      </div>
       <div
         id="week-number-label"
-        class="week-navigation__week-number text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+        class="text-[11px] uppercase tracking-[0.14em] text-ink-faint"
         data-testid="week-number-label"
       >
         {{ weekNumberLabel() }}
@@ -34,19 +34,19 @@
 
     <button
       id="week-next-button"
+      mat-icon-button
       type="button"
-      class="week-navigation__next rounded-xl bg-ink/5 px-3 py-2 text-base text-ink-soft hover:bg-ink/10"
-      data-testid="week-next-button"
       aria-label="Next week"
+      data-testid="week-next-button"
       (click)="nextWeek.emit()"
     >
-      →
+      <mat-icon>chevron_right</mat-icon>
     </button>
   </div>
 
   <span
     id="week-today-badge"
-    class="week-navigation__today rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-medium text-accent"
+    class="relative z-[1] rounded-full border border-accent/35 bg-accent/10 px-4 py-1.5 text-xs font-medium text-accent"
     data-testid="week-today-badge"
   >
     {{ todayLabel() }}

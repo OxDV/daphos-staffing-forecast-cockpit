@@ -1,80 +1,57 @@
-@if (day().canOverride) {
-  <button
-    [attr.id]="cellId()"
-    type="button"
-    [class]="cellClass()"
-    [attr.data-testid]="cellId()"
-    [attr.data-ward-code]="wardCode()"
-    [attr.data-date]="day().date"
-    [attr.data-staffing-status]="status().kind"
-    [attr.data-confidence-band]="band().kind"
-  >
-    <div class="staffing-day-cell__values relative z-[1] flex items-baseline gap-1.5">
+<button
+  [attr.id]="cellId()"
+  type="button"
+  [class]="cellClass()"
+  [attr.data-testid]="cellId()"
+  [attr.data-ward-code]="wardCode()"
+  [attr.data-date]="day().date"
+  [attr.data-staffing-status]="status().kind"
+  [attr.data-confidence-band]="band().kind"
+  (click)="onActivate()"
+>
+  <div class="staffing-day-cell__top">
+    <div class="staffing-day-cell__demand">
       @if (day().isCorrected) {
-        <span
-          class="staffing-day-cell__forecast-demand font-mono text-xs text-ink-faint line-through"
-          data-testid="forecast-demand"
-        >
+        <span class="staffing-day-cell__was" data-testid="forecast-demand">
           {{ day().forecastDemand }}
         </span>
       }
-      <span class="staffing-day-cell__effective-demand font-mono text-2xl leading-none tabular-nums">
-        {{ day().effectiveDemand }}
-      </span>
-      <span class="staffing-day-cell__planned-staffing font-mono text-xs text-ink-faint">
-        /{{ day().plannedStaffing }}
-      </span>
+      <span class="staffing-day-cell__value">{{ day().effectiveDemand }}</span>
     </div>
+    <div class="staffing-day-cell__planned">Plan {{ day().plannedStaffing }}</div>
+  </div>
 
-    <div
-      class="staffing-day-cell__status relative z-[1] mt-2.5 flex items-center gap-1 text-[11px]"
-      [class.text-short]="status().kind === 'short'"
-      [class.text-surplus]="status().kind === 'surplus'"
-      [class.text-balance]="status().kind === 'balanced'"
-      data-testid="staffing-status"
-    >
-      <span aria-hidden="true">{{ status().marker }}</span>
-      <span>{{ status().label }}</span>
-    </div>
-
-    @if (day().isCorrected) {
+  <div class="staffing-day-cell__bottom">
+    @if (day().canOverride) {
       <div
-        class="staffing-day-cell__corrected relative z-[1] mt-1 flex items-center gap-1 text-[11px] text-accent"
-        data-testid="corrected-marker"
+        class="staffing-day-cell__status"
+        [class.text-short]="status().kind === 'short'"
+        [class.text-surplus]="status().kind === 'surplus'"
+        [class.text-balance]="status().kind === 'balanced'"
+        data-testid="staffing-status"
       >
-        <span aria-hidden="true">ⓘ</span>
-        <span>Corrected</span>
+        <mat-icon class="staffing-day-cell__icon">
+          {{
+            status().kind === 'short'
+              ? 'arrow_upward'
+              : status().kind === 'surplus'
+                ? 'arrow_downward'
+                : 'remove'
+          }}
+        </mat-icon>
+        <span class="staffing-day-cell__status-text">{{ status().label }}</span>
       </div>
     } @else {
-      <div
-        class="staffing-day-cell__confidence relative z-[1] mt-1 text-[11px] text-ink-faint"
-        data-testid="confidence-label"
-      >
-        conf {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
-      </div>
+      <div class="staffing-day-cell__locked">Locked · past</div>
     }
-  </button>
-} @else {
-  <div
-    [attr.id]="cellId()"
-    [class]="cellClass()"
-    [attr.data-testid]="cellId()"
-    [attr.data-ward-code]="wardCode()"
-    [attr.data-date]="day().date"
-    [attr.data-staffing-status]="status().kind"
-    [attr.data-confidence-band]="band().kind"
-  >
-    <div class="staffing-day-cell__effective-demand relative z-[1] font-mono text-2xl leading-none tabular-nums">
-      {{ day().effectiveDemand }}
-    </div>
-    <div class="staffing-day-cell__locked-label relative z-[1] mt-2.5 text-[11px] text-ink-soft">
-      Locked · past
-    </div>
-    <div
-      class="staffing-day-cell__confidence relative z-[1] text-[11px] text-ink-faint"
-      data-testid="confidence-label"
-    >
-      conf {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
+
+    <div class="staffing-day-cell__footer">
+      <span data-testid="confidence-label">
+        {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
+      </span>
+      @if (day().isCorrected) {
+        <span class="staffing-day-cell__corrected" data-testid="corrected-marker">Corrected</span>
+      }
     </div>
   </div>
-}
+</button>

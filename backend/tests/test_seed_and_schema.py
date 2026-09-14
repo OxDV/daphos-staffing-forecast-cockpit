@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.persistence.models import DemandOverride, StaffingDay, Ward
-from app.seed import WARD_SPECS, iter_seed_dates, monday_of, seed_database
+from app.seed import WARD_SPECS, iter_seed_dates, monday_of, reset_and_seed, seed_database
 
 
 def test_monday_of_returns_iso_week_start() -> None:
@@ -87,22 +87,26 @@ def test_seed_creates_deterministic_dataset(session: Session, fixed_today: date)
     assert first.created is True
     assert first.ward_count == len(WARD_SPECS)
     assert first.staffing_day_count == 35 * len(WARD_SPECS)
-    assert first.override_count == 1
+    assert first.override_count >= 7
     assert first.week_start == date(2026, 9, 7)
     assert first.week_end == date(2026, 10, 11)
 
     wards = session.scalars(select(Ward).order_by(Ward.code)).all()
     assert [ward.code for ward in wards] == ["A2", "B3", "ICU"]
 
-    override = session.scalar(select(DemandOverride))
-    assert override is not None
-    assert override.corrected_by == settings.audit_user
-    assert override.justification
-    assert override.corrected_demand - override.previous_demand == Decimal("2.00")
+    overrides = session.scalars(select(DemandOverride)).all()
+    assert len(overrides) == first.override_count
+    assert all(item.corrected_by == settings.audit_user for item in overrides)
+    assert all(item.justification for item in overrides)
+    assert any(
+        item.corrected_demand - item.previous_demand == Decimal("2.00") for item in overrides
+    )
 
-    staffing_day = session.get(StaffingDay, override.staffing_day_id)
-    assert staffing_day is not None
-    assert staffing_day.service_date > fixed_today
+    corrected_day_ids = {item.staffing_day_id for item in overrides}
+    assert len(corrected_day_ids) >= 5
+    for day_id in corrected_day_ids:
+        staffing_day = session.get(StaffingDay, day_id)
+        assert staffing_day is not None
 
 
 def test_seed_is_idempotent(session: Session, fixed_today: date) -> None:
@@ -118,6 +122,23 @@ def test_seed_is_idempotent(session: Session, fixed_today: date) -> None:
     assert session.scalar(select(func.count()).select_from(Ward)) == first.ward_count
     assert session.scalar(select(func.count()).select_from(StaffingDay)) == first.staffing_day_count
     assert session.scalar(select(func.count()).select_from(DemandOverride)) == first.override_count
+
+
+def test_reset_and_seed_recreates_dataset(session: Session, fixed_today: date) -> None:
+    first = seed_database(session, today=fixed_today)
+    first_ward_id = session.scalars(select(Ward.id).where(Ward.code == "B3")).one()
+
+    reset = reset_and_seed(session, today=fixed_today)
+    second_ward_id = session.scalars(select(Ward.id).where(Ward.code == "B3")).one()
+
+    assert reset.created is True
+    assert reset.ward_count == first.ward_count
+    assert reset.staffing_day_count == first.staffing_day_count
+    assert reset.override_count == first.override_count
+    assert second_ward_id != first_ward_id
+    assert (
+        session.scalar(select(func.count()).select_from(DemandOverride)) == first.override_count
+    )
 
 
 def test_seed_requires_future_day_for_initial_override(
