@@ -1,51 +1,62 @@
 <div
   id="forecast-cockpit"
-  class="forecast-cockpit mx-auto flex h-[100dvh] min-h-screen w-[90%] gap-4 py-4"
+  class="forecast-cockpit relative mx-auto flex h-[100dvh] min-h-screen w-[90%] max-w-none gap-5 py-5"
   data-testid="forecast-cockpit"
 >
-  <mat-card
+  <aside
     id="ward-sidebar"
-    appearance="elevated"
-    class="cockpit-panel ward-sidebar hidden w-56 shrink-0 !rounded-2xl md:flex md:flex-col"
+    class="ward-sidebar glass hidden w-56 shrink-0 flex-col rounded-3xl p-5 md:flex"
     data-testid="ward-sidebar"
   >
-    <mat-card-header class="!mb-3 !items-center gap-3">
-      <div id="brand-mark" class="brand-mark" mat-card-avatar>D</div>
-      <mat-card-title id="brand-name">DaphOS</mat-card-title>
-      <mat-card-subtitle id="brand-subtitle">Forecast</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content class="!flex !flex-1 !flex-col">
-      <div id="ward-sidebar-label" class="mb-2 text-xs uppercase tracking-wide opacity-60">
-        Wards
+    <div id="brand-block" class="relative z-[1] mb-6 flex items-center gap-3">
+      <span id="brand-mark" class="brand-mark">D</span>
+      <div class="leading-tight">
+        <div id="brand-name" class="text-base font-semibold tracking-tight">DaphOS</div>
+        <div
+          id="brand-subtitle"
+          class="text-[11px] uppercase tracking-[0.14em] text-ink-soft"
+        >
+          Forecast
+        </div>
       </div>
-      <mat-nav-list id="ward-sidebar-nav" dense aria-label="Wards">
-        @if (data(); as week) {
-          @for (ward of week.wards; track ward.id) {
-            <a
-              mat-list-item
-              [attr.id]="'ward-sidebar-item-' + ward.code"
-              [attr.data-testid]="'ward-sidebar-item-' + ward.code"
-              [attr.href]="'#ward-row-' + ward.code"
-            >
-              {{ ward.name }} · {{ ward.code }}
-            </a>
-          }
-        } @else {
-          <p id="ward-sidebar-empty" class="px-4 text-sm opacity-60">Waiting for week data</p>
+    </div>
+
+    <div
+      id="ward-sidebar-label"
+      class="relative z-[1] mb-2 text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+    >
+      Wards
+    </div>
+    <nav
+      id="ward-sidebar-nav"
+      class="relative z-[1] flex flex-col gap-1.5 text-sm"
+      aria-label="Wards"
+    >
+      @if (data(); as week) {
+        @for (ward of week.wards; track ward.id) {
+          <a
+            class="rounded-xl px-3 py-2 text-left text-ink-soft hover:bg-white/35"
+            [attr.id]="'ward-sidebar-item-' + ward.code"
+            [attr.data-testid]="'ward-sidebar-item-' + ward.code"
+            [attr.href]="'#ward-row-' + ward.code"
+          >
+            {{ ward.name }} · {{ ward.code }}
+          </a>
         }
-      </mat-nav-list>
+      } @else {
+        <p id="ward-sidebar-empty" class="text-[13px] text-ink-faint">Waiting for week data</p>
+      }
+    </nav>
 
-      <div id="ward-sidebar-week" class="mt-auto pt-4 text-xs opacity-60">
-        Week
-        <span class="font-mono">{{ data()?.weekStart ?? '—' }}</span>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    <div id="ward-sidebar-week" class="relative z-[1] mt-auto pt-5 text-[11px] text-ink-faint">
+      Week
+      <span class="font-mono text-ink-soft">{{ data()?.weekStart ?? '—' }}</span>
+    </div>
+  </aside>
 
   <main
     id="forecast-main"
-    class="forecast-main flex min-h-0 min-w-0 flex-1 flex-col gap-4"
+    class="forecast-main flex min-h-0 min-w-0 flex-1 flex-col gap-5"
     data-testid="forecast-main"
   >
     <app-week-navigation
@@ -59,46 +70,43 @@
     <div id="forecast-main-content" class="min-h-0 flex-1 overflow-auto">
       @switch (status()) {
         @case ('loading') {
-          <mat-card
+          <section
             id="cockpit-loading-state"
-            appearance="elevated"
-            class="cockpit-panel flex h-full items-center justify-center gap-3 !rounded-2xl p-8"
+            class="glass flex h-full items-center justify-center gap-3 rounded-3xl p-8 text-ink-soft"
             data-testid="cockpit-loading-state"
           >
             <mat-spinner diameter="32"></mat-spinner>
             <span>Loading staffing week…</span>
-          </mat-card>
+          </section>
         }
         @case ('error') {
-          <mat-card
+          <section
             id="cockpit-error-state"
-            appearance="elevated"
-            class="cockpit-panel h-full !rounded-2xl p-8"
+            class="glass h-full rounded-3xl p-8"
             data-testid="cockpit-error-state"
           >
-            <p id="cockpit-error-message">{{ error() }}</p>
+            <p id="cockpit-error-message" class="relative z-[1]">{{ error() }}</p>
             <button
               id="cockpit-retry-button"
               mat-flat-button
               color="primary"
               type="button"
-              class="mt-4"
+              class="relative z-[1] mt-4"
               data-testid="cockpit-retry-button"
               (click)="onRetry()"
             >
               Retry
             </button>
-          </mat-card>
+          </section>
         }
         @case ('empty') {
-          <mat-card
+          <section
             id="cockpit-empty-state"
-            appearance="elevated"
-            class="cockpit-panel h-full !rounded-2xl p-8"
+            class="glass h-full rounded-3xl p-8 text-ink-soft"
             data-testid="cockpit-empty-state"
           >
             No staffing data is available for this week.
-          </mat-card>
+          </section>
         }
         @case ('ready') {
           @if (data(); as week) {
@@ -110,14 +118,13 @@
           }
         }
         @default {
-          <mat-card
+          <section
             id="cockpit-idle-state"
-            appearance="elevated"
-            class="cockpit-panel h-full !rounded-2xl p-8"
+            class="glass h-full rounded-3xl p-8 text-ink-soft"
             data-testid="cockpit-idle-state"
           >
             Preparing cockpit…
-          </mat-card>
+          </section>
         }
       }
     </div>

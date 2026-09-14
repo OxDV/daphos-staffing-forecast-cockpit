@@ -15,7 +15,9 @@
         {{ day().forecastDemand }}
       </span>
     }
-    <span class="font-mono text-2xl leading-none tabular-nums">{{ day().effectiveDemand }}</span>
+    <span class="font-mono text-xl leading-none tabular-nums sm:text-2xl">{{
+      day().effectiveDemand
+    }}</span>
     <span class="font-mono text-xs opacity-60">/{{ day().plannedStaffing }}</span>
   </div>
 

@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChip } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-week-navigation',
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatChip],
+  imports: [MatButtonModule, MatIconModule],
   templateUrl: './week-navigation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

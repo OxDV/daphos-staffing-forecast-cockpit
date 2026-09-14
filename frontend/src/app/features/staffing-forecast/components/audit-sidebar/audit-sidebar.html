@@ -1,19 +1,23 @@
-<mat-card
+<aside
   id="audit-sidebar"
-  appearance="elevated"
-  class="cockpit-panel audit-sidebar hidden h-full w-80 shrink-0 !rounded-2xl xl:flex xl:flex-col"
+  class="audit-sidebar glass hidden w-80 shrink-0 flex-col rounded-3xl p-5 xl:flex"
   data-testid="audit-sidebar"
 >
-  <mat-card-header id="audit-sidebar-header" class="!mb-2">
-    <mat-card-title id="audit-sidebar-title">Audit history</mat-card-title>
-    <mat-card-subtitle id="audit-sidebar-timezone">UTC</mat-card-subtitle>
-  </mat-card-header>
+  <div id="audit-sidebar-header" class="relative z-[1] mb-4 flex items-center justify-between">
+    <h2 id="audit-sidebar-title" class="text-sm font-semibold tracking-tight">Audit history</h2>
+    <span
+      id="audit-sidebar-timezone"
+      class="text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+    >
+      UTC
+    </span>
+  </div>
 
-  <mat-card-content class="!flex-1">
+  <div class="relative z-[1] min-h-0 flex-1 overflow-auto">
     @if (!selectedDay()) {
       <p
         id="audit-sidebar-placeholder"
-        class="text-sm opacity-70"
+        class="text-sm text-ink-soft"
         data-testid="audit-sidebar-placeholder"
       >
         Select a day to view audit history
@@ -25,39 +29,43 @@
         data-testid="audit-sidebar-loading"
       >
         <mat-spinner diameter="24"></mat-spinner>
-        <span class="text-sm opacity-70">Loading history…</span>
+        <span class="text-sm text-ink-soft">Loading history…</span>
       </div>
     } @else if (error(); as message) {
       <p id="audit-sidebar-error" class="text-sm text-short" data-testid="audit-sidebar-error">
         {{ message }}
       </p>
     } @else if (history().length === 0) {
-      <p id="audit-sidebar-empty" class="text-sm opacity-70" data-testid="audit-sidebar-empty">
+      <p id="audit-sidebar-empty" class="text-sm text-ink-soft" data-testid="audit-sidebar-empty">
         No corrections recorded for {{ selectedDay()?.wardName }} · {{ selectedDay()?.day?.date }}.
       </p>
     } @else {
-      <mat-nav-list id="audit-history-list" dense data-testid="audit-history-list">
+      <ol id="audit-history-list" class="space-y-3 text-[12px]" data-testid="audit-history-list">
         @for (item of history(); track item.id) {
-          <a
-            mat-list-item
-            class="audit-history-item !h-auto !py-3"
+          <li
+            class="audit-history-item p-3"
             [attr.id]="'audit-history-item-' + item.id"
             [attr.data-testid]="'audit-history-item-' + item.id"
           >
-            <span matListItemTitle>{{ item.correctedBy }}</span>
-            <span matListItemLine class="!whitespace-normal">
-              {{ selectedDay()?.wardName }} · {{ selectedDay()?.day?.date }} ·
-              {{ item.correctedAt | date: 'HH:mm' : 'UTC' }} UTC
-            </span>
-            <span matListItemLine class="!whitespace-normal font-mono">
-              {{ item.previousDemand }} → {{ item.correctedDemand }}
-            </span>
-            <span matListItemLine class="!whitespace-normal">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-medium">{{ item.correctedBy }}</span>
+              <span class="font-mono text-[10px] text-ink-faint">
+                {{ item.correctedAt | date: 'HH:mm' : 'UTC' }}
+              </span>
+            </div>
+            <div class="mt-1 font-mono text-[11px] text-ink-soft">
+              {{ selectedDay()?.wardName }} · {{ selectedDay()?.day?.date }}
+              <br />
+              <span class="text-ink-faint">{{ item.previousDemand }}</span>
+              →
+              <span>{{ item.correctedDemand }}</span>
+            </div>
+            <div class="mt-1.5 text-[11px] text-ink-soft">
               {{ item.justification || 'No justification provided' }}
-            </span>
-          </a>
+            </div>
+          </li>
         }
-      </mat-nav-list>
+      </ol>
     }
-  </mat-card-content>
-</mat-card>
+  </div>
+</aside>

@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -22,9 +20,7 @@ import { addDays, formatWeekRange, isoWeekNumber, mondayOf } from '../../week.ut
     WeekNavigation,
     WardWeekGrid,
     AuditSidebar,
-    MatCardModule,
     MatButtonModule,
-    MatListModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './forecast-cockpit-page.html',
@@ -135,6 +131,7 @@ export class ForecastCockpitPage {
     this.dialog.open(OverrideDialog, {
       width: '420px',
       autoFocus: 'first-tabbable',
+      panelClass: 'glass-dialog',
       data: {
         wardId: selection.ward.id,
         wardName: selection.ward.name,

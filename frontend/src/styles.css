@@ -1,10 +1,17 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-short: #b3261e;
-  --color-surplus: #146c2e;
-  --color-balance: #5f6368;
-  --font-mono: 'Roboto Mono', Consolas, monospace;
+  --color-ink: #1a2332;
+  --color-ink-soft: #5b6b7c;
+  --color-ink-faint: #8b9aab;
+  --color-accent: #2f6fed;
+  --color-accent-ink: #f5f8ff;
+  --color-short: #c43c3c;
+  --color-surplus: #1f7a4c;
+  --color-balance: #5b6b7c;
+  --color-line: rgba(26, 35, 50, 0.12);
+  --font-display: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
 html,
@@ -16,10 +23,14 @@ body {
 body {
   min-height: 100vh;
   min-height: 100dvh;
+  color: var(--color-ink);
+  font-family: var(--font-display);
   background:
-    radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--mat-sys-primary) 14%, transparent), transparent 36%),
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent), transparent 32%),
-    var(--mat-sys-surface-container-low);
+    radial-gradient(circle at 12% 8%, rgba(47, 111, 237, 0.28), transparent 34%),
+    radial-gradient(circle at 88% 4%, rgba(31, 122, 76, 0.16), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(47, 111, 237, 0.1), transparent 42%),
+    linear-gradient(180deg, #e8eef6 0%, #d5dee9 100%);
+  background-attachment: fixed;
 }
 
 app-root {
@@ -44,133 +55,187 @@ app-root {
   color: var(--color-balance);
 }
 
-.cockpit-panel.mat-mdc-card {
-  background: var(--mat-sys-surface-container-lowest);
-  box-shadow:
-    0 1px 2px color-mix(in srgb, var(--mat-sys-shadow) 8%, transparent),
-    0 8px 24px color-mix(in srgb, var(--mat-sys-shadow) 10%, transparent);
-}
-
-.week-navigation.mat-toolbar {
-  box-shadow:
-    0 1px 2px color-mix(in srgb, var(--mat-sys-shadow) 8%, transparent),
-    0 8px 20px color-mix(in srgb, var(--mat-sys-shadow) 8%, transparent);
-}
-
 .brand-mark {
   display: grid;
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 0.75rem;
-  background: var(--mat-sys-primary);
-  color: var(--mat-sys-on-primary);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
   font-size: 0.85rem;
   font-weight: 700;
 }
 
+.glass,
+.cockpit-panel.mat-mdc-card,
+.week-navigation.mat-toolbar,
+.glass-dialog .mat-mdc-dialog-surface {
+  position: relative;
+  overflow: hidden;
+  color: var(--color-ink);
+  background:
+    linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(255, 255, 255, 0.42) 48%,
+      rgba(255, 255, 255, 0.26) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.66) !important;
+  box-shadow:
+    0 18px 40px rgba(26, 35, 50, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+}
+
+.glass::before,
+.cockpit-panel.mat-mdc-card::before,
+.week-navigation.mat-toolbar::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.5), transparent 42%);
+  opacity: 0.55;
+}
+
+.glass-soft,
 .staffing-day-cell {
-  display: block;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0.34) 55%,
+      rgba(255, 255, 255, 0.2) 100%
+    );
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow:
+    0 10px 24px rgba(26, 35, 50, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px) saturate(155%);
+  -webkit-backdrop-filter: blur(16px) saturate(155%);
+}
+
+.glass-soft::before,
+.staffing-day-cell::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), transparent 45%);
+  opacity: 0.5;
+}
+
+.staffing-day-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   width: 100%;
-  min-height: 7rem;
-  padding: 0.85rem 0.9rem;
+  min-width: 0;
+  min-height: 7.25rem;
+  padding: 0.8rem 0.75rem;
   text-align: left;
   cursor: pointer;
-  border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 80%, transparent);
-  border-radius: 14px;
-  background: var(--mat-sys-surface);
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--mat-sys-shadow) 6%, transparent);
+  border-radius: 1rem;
   transition:
-    transform 140ms ease,
-    box-shadow 140ms ease,
-    border-color 140ms ease;
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.staffing-day-cell > * {
+  position: relative;
+  z-index: 1;
 }
 
 .staffing-day-cell:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--mat-sys-shadow) 12%, transparent);
-  border-color: color-mix(in srgb, var(--mat-sys-primary) 35%, var(--mat-sys-outline-variant));
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 14px 28px rgba(26, 35, 50, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .staffing-day-cell:focus-visible {
-  outline: 2px solid var(--mat-sys-primary);
+  outline: 2px solid rgba(47, 111, 237, 0.7);
   outline-offset: 2px;
 }
 
 .staffing-day-cell--short {
-  border-color: color-mix(in srgb, var(--color-short) 42%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-short) 10%, var(--mat-sys-surface)) 0%,
-    var(--mat-sys-surface) 70%
-  );
+  box-shadow:
+    0 10px 24px rgba(196, 60, 60, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(196, 60, 60, 0.18);
 }
 
 .staffing-day-cell--surplus {
-  border-color: color-mix(in srgb, var(--color-surplus) 38%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-surplus) 10%, var(--mat-sys-surface)) 0%,
-    var(--mat-sys-surface) 70%
-  );
-}
-
-.staffing-day-cell--balanced {
-  background: var(--mat-sys-surface);
+  box-shadow:
+    0 10px 24px rgba(31, 122, 76, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(31, 122, 76, 0.14);
 }
 
 .staffing-day-cell--low-confidence {
   background-image:
     repeating-linear-gradient(
       -45deg,
-      color-mix(in srgb, var(--mat-sys-on-surface) 5%, transparent),
-      color-mix(in srgb, var(--mat-sys-on-surface) 5%, transparent) 4px,
+      rgba(26, 35, 50, 0.04),
+      rgba(26, 35, 50, 0.04) 4px,
       transparent 4px,
       transparent 8px
     ),
     linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--mat-sys-tertiary) 8%, var(--mat-sys-surface)) 0%,
-      var(--mat-sys-surface) 72%
-    );
-}
-
-.staffing-day-cell--short.staffing-day-cell--low-confidence {
-  background-image:
-    repeating-linear-gradient(
-      -45deg,
-      color-mix(in srgb, var(--mat-sys-on-surface) 5%, transparent),
-      color-mix(in srgb, var(--mat-sys-on-surface) 5%, transparent) 4px,
-      transparent 4px,
-      transparent 8px
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-short) 12%, var(--mat-sys-surface)) 0%,
-      var(--mat-sys-surface) 72%
+      160deg,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0.34) 55%,
+      rgba(255, 255, 255, 0.2) 100%
     );
 }
 
 .staffing-day-cell--corrected {
-  border-color: var(--mat-sys-primary);
-  border-width: 2px;
+  border-color: rgba(47, 111, 237, 0.5);
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--mat-sys-primary) 18%, transparent),
-    0 6px 16px color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+    0 0 0 1px rgba(47, 111, 237, 0.18),
+    0 12px 24px rgba(47, 111, 237, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .staffing-day-cell--locked {
-  opacity: 0.72;
+  opacity: 0.62;
 }
 
 .staffing-day-cell--locked:hover {
   transform: none;
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--mat-sys-shadow) 6%, transparent);
+}
+
+.ward-week-grid__row {
+  min-width: 0;
+}
+
+.ward-week-grid__cell {
+  min-width: 0;
 }
 
 .audit-history-item {
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 0.9rem;
   margin-bottom: 0.75rem;
-  background: var(--mat-sys-surface-container-low);
+  background: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.mat-mdc-card-header,
+.mat-mdc-card-content,
+.mat-toolbar-row,
+.mat-toolbar {
+  position: relative;
+  z-index: 1;
 }
