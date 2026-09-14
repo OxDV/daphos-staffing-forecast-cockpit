@@ -35,7 +35,11 @@
 
         @for (day of ward.days; track day.date) {
           <div class="ward-week-row__cell px-1.5 py-1">
-            <app-staffing-day-cell [wardCode]="ward.code" [day]="day" />
+            <app-staffing-day-cell
+              [wardCode]="ward.code"
+              [day]="day"
+              (dayActivate)="onDayActivate(ward, $event)"
+            />
           </div>
         }
 

@@ -1,0 +1,59 @@
+<aside
+  id="audit-sidebar"
+  class="audit-sidebar glass hidden w-80 shrink-0 flex-col rounded-3xl p-5 xl:flex"
+  data-testid="audit-sidebar"
+>
+  <div id="audit-sidebar-header" class="mb-4 flex items-center justify-between">
+    <h2 id="audit-sidebar-title" class="font-display text-sm font-semibold tracking-tight">
+      Audit history
+    </h2>
+    <span id="audit-sidebar-timezone" class="text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+      UTC
+    </span>
+  </div>
+
+  @if (!selectedDay()) {
+    <p id="audit-sidebar-placeholder" class="text-sm text-ink-soft" data-testid="audit-sidebar-placeholder">
+      Select a day to view audit history
+    </p>
+  } @else if (loading()) {
+    <p id="audit-sidebar-loading" class="text-sm text-ink-soft" data-testid="audit-sidebar-loading">
+      Loading history…
+    </p>
+  } @else if (error(); as message) {
+    <p id="audit-sidebar-error" class="text-sm text-short" data-testid="audit-sidebar-error">
+      {{ message }}
+    </p>
+  } @else if (history().length === 0) {
+    <p id="audit-sidebar-empty" class="text-sm text-ink-soft" data-testid="audit-sidebar-empty">
+      No corrections recorded for {{ selectedDay()?.wardName }} · {{ selectedDay()?.day?.date }}.
+    </p>
+  } @else {
+    <ol id="audit-history-list" class="space-y-3 text-[12px]" data-testid="audit-history-list">
+      @for (item of history(); track item.id) {
+        <li
+          class="audit-history-item rounded-xl border border-line/60 bg-ink/[0.03] p-3"
+          [attr.id]="'audit-history-item-' + item.id"
+          [attr.data-testid]="'audit-history-item-' + item.id"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-medium text-ink">{{ item.correctedBy }}</span>
+            <span class="font-mono text-[10px] text-ink-faint">
+              {{ item.correctedAt | date: 'HH:mm' : 'UTC' }}
+            </span>
+          </div>
+          <div class="mt-1 font-mono text-[11px] text-ink-soft">
+            {{ selectedDay()?.wardName }} · {{ selectedDay()?.day?.date }}
+            <br />
+            <span class="text-ink-faint">{{ item.previousDemand }}</span>
+            →
+            <span class="text-ink">{{ item.correctedDemand }}</span>
+          </div>
+          <div class="mt-1.5 text-[11px] text-ink-soft">
+            {{ item.justification || 'No justification provided' }}
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</aside>

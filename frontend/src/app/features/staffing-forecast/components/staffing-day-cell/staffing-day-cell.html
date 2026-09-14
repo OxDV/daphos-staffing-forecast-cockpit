@@ -8,6 +8,7 @@
     [attr.data-date]="day().date"
     [attr.data-staffing-status]="status().kind"
     [attr.data-confidence-band]="band().kind"
+    (click)="onActivate()"
   >
     <div class="staffing-day-cell__values relative z-[1] flex items-baseline gap-1.5">
       @if (day().isCorrected) {
@@ -55,14 +56,16 @@
     }
   </button>
 } @else {
-  <div
+  <button
     [attr.id]="cellId()"
-    [class]="cellClass()"
+    type="button"
+    [class]="cellClass() + ' cursor-pointer'"
     [attr.data-testid]="cellId()"
     [attr.data-ward-code]="wardCode()"
     [attr.data-date]="day().date"
     [attr.data-staffing-status]="status().kind"
     [attr.data-confidence-band]="band().kind"
+    (click)="onActivate()"
   >
     <div class="staffing-day-cell__effective-demand relative z-[1] font-mono text-2xl leading-none tabular-nums">
       {{ day().effectiveDemand }}
@@ -76,5 +79,5 @@
     >
       conf {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
     </div>
-  </div>
+  </button>
 }

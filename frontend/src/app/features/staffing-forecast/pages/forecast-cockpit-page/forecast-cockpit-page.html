@@ -104,7 +104,11 @@
         }
         @case ('ready') {
           @if (data(); as week) {
-            <app-ward-week-grid [wards]="week.wards" [dayHeaders]="dayHeaders()" />
+            <app-ward-week-grid
+              [wards]="week.wards"
+              [dayHeaders]="dayHeaders()"
+              (daySelected)="onDaySelected($event)"
+            />
           }
         }
         @default {
@@ -120,21 +124,22 @@
     </div>
   </main>
 
-  <aside
-    id="audit-sidebar"
-    class="audit-sidebar glass hidden w-80 shrink-0 flex-col rounded-3xl p-5 xl:flex"
-    data-testid="audit-sidebar"
-  >
-    <div id="audit-sidebar-header" class="mb-4 flex items-center justify-between">
-      <h2 id="audit-sidebar-title" class="font-display text-sm font-semibold tracking-tight">
-        Audit history
-      </h2>
-      <span id="audit-sidebar-timezone" class="text-[11px] uppercase tracking-[0.14em] text-ink-faint">
-        UTC
-      </span>
-    </div>
-    <p id="audit-sidebar-placeholder" class="text-sm text-ink-soft" data-testid="audit-sidebar-placeholder">
-      Select a day to view audit history
-    </p>
-  </aside>
+  <app-audit-sidebar
+    [selectedDay]="selectedDay()"
+    [history]="history()"
+    [loading]="historyLoading()"
+    [error]="historyError()"
+  />
 </div>
+
+@if (dialogOpen() && selectedDay(); as selection) {
+  @if (data(); as week) {
+    <app-override-dialog
+      [wardId]="selection.wardId"
+      [wardName]="selection.wardName"
+      [day]="selection.day"
+      [policy]="week.overridePolicy"
+      (closed)="onDialogClosed()"
+    />
+  }
+}

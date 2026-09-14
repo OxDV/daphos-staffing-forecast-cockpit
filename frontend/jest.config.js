@@ -8,6 +8,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/app/features/staffing-forecast/week.utils.ts',
     'src/app/features/staffing-forecast/staffing-status.utils.ts',
+    'src/app/features/staffing-forecast/staffing.validators.ts',
     'src/app/features/staffing-forecast/data-access/**/*.ts',
     'src/app/features/staffing-forecast/components/**/*.ts',
     '!src/app/**/*.spec.ts',

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { StaffingDay } from '../../staffing.models';
 import { confidenceBand, staffingStatus } from '../../staffing-status.utils';
@@ -13,6 +13,7 @@ import { formatConfidencePercent } from '../../week.utils';
 export class StaffingDayCell {
   readonly wardCode = input.required<string>();
   readonly day = input.required<StaffingDay>();
+  readonly dayActivate = output<StaffingDay>();
 
   protected readonly formatConfidencePercent = formatConfidencePercent;
 
@@ -38,7 +39,7 @@ export class StaffingDayCell {
     ];
 
     if (!this.day().canOverride) {
-      classes.push('staffing-day-cell--locked', 'cursor-not-allowed', 'opacity-60');
+      classes.push('staffing-day-cell--locked', 'opacity-60');
     } else {
       classes.push('focus:outline-none', 'focus-visible:ring-2', 'focus-visible:ring-accent/70');
     }
@@ -52,5 +53,9 @@ export class StaffingDayCell {
 
   protected cellId(): string {
     return `day-cell-${this.wardCode()}-${this.day().date}`;
+  }
+
+  protected onActivate(): void {
+    this.dayActivate.emit(this.day());
   }
 }

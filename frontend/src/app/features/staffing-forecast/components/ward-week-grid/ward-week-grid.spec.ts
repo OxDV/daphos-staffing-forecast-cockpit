@@ -73,4 +73,20 @@ describe('WardWeekGrid', () => {
     expect(compiled.querySelector('#ward-week-summary-ICU')?.textContent).toContain('2');
     expect(compiled.textContent).toContain('Ward B3');
   });
+
+  it('bubbles day selection from a cell click', () => {
+    const selected: unknown[] = [];
+    fixture.componentInstance.daySelected.subscribe((value) => selected.push(value));
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector('#day-cell-B3-2026-09-14')
+      ?.dispatchEvent(new Event('click'));
+
+    expect(selected).toEqual([
+      {
+        ward: wards[0],
+        day: wards[0].days[0],
+      },
+    ]);
+  });
 });

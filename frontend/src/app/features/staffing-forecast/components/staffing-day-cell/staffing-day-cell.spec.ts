@@ -81,4 +81,20 @@ describe('StaffingDayCell', () => {
     expect(compiled.querySelector('[data-testid="forecast-demand"]')?.textContent).toContain('12');
     expect(compiled.querySelector('[data-testid="corrected-marker"]')?.textContent).toContain('Corrected');
   });
+
+  it('emits dayActivate for editable and locked cells', () => {
+    const emitted: StaffingDay[] = [];
+    fixture.componentInstance.dayActivate.subscribe((day) => emitted.push(day));
+
+    fixture.componentRef.setInput('wardCode', 'B3');
+    fixture.componentRef.setInput('day', editableDay);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector('button')?.dispatchEvent(new Event('click'));
+
+    fixture.componentRef.setInput('day', lockedDay);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector('button')?.dispatchEvent(new Event('click'));
+
+    expect(emitted).toEqual([editableDay, lockedDay]);
+  });
 });
