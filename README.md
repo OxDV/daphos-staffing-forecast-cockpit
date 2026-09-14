@@ -33,6 +33,12 @@ uvicorn app.main:app --reload --port 8000
 
 API docs: http://localhost:8000/docs
 
+Example weekly endpoint:
+
+```bash
+curl "http://localhost:8000/api/v1/staffing-weeks?weekStart=2026-09-14"
+```
+
 Health checks:
 
 - http://localhost:8000/health/live

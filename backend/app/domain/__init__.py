@@ -1,1 +1,1 @@
-"""Domain policies and calculations."""
+"""Domain package."""
