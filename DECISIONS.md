@@ -2,30 +2,30 @@
 
 ## Domain model
 
-`Ward` owns calendar `StaffingDay` records. The generated forecast, planned staffing, and confidence stay immutable on the day. Every manual correction creates an append-only `DemandOverride` with previous demand, corrected demand, justification, server-assigned user, and UTC timestamp. Effective demand is the latest correction or the original forecast. This preserves the forecast trail and makes audit history trivial to reconstruct.
+`Ward` owns calendar `StaffingDay` rows. Forecast demand, planned staffing, and confidence stay on the day record. Each manual correction creates a `DemandOverride` (previous demand, corrected demand, justification, server-assigned user, UTC time). Effective demand is the latest remaining override, or the forecast if none exist. Overrides can be deleted on editable days so a mistaken correction can be undone without rewriting history rows in place.
 
 ## API
 
-One weekly read endpoint returns every ward and seven days with derived effective demand, understaffing, and summaries. That avoids N+1 browser requests and keeps calculation rules authoritative on the server. Overrides use a separate `POST` endpoint with the same validation policy the UI mirrors for fast feedback.
+`GET /api/v1/staffing-weeks?weekStart=` returns every ward and seven days with effective demand, understaffing, confidence, and weekly summaries computed on the server. That avoids N+1 browser calls and keeps rules authoritative. Corrections use `POST` / `DELETE` on `/wards/{id}/staffing-days/{date}/overrides…` with the same validation policy the UI mirrors for quick client-side feedback.
 
 ## Uncertainty in the UI
 
-Understaffing and forecast confidence are independent signals:
+Understaffing and confidence stay independent:
 
-- staffing balance is `Short`, `Balanced`, or `Surplus`;
-- confidence is a percentage plus `Low` / `Medium` / `High`.
+- staffing gap → `Short` / `Balanced` / `Surplus` (label + thin colored border);
+- confidence → percent + `Low` / `Medium` / `High` in the cell footer.
 
-Day cells use Material buttons/icons plus light status borders. Low confidence adds a subtle hatch so uncertainty remains visible even when staffing is balanced.
+Corrected days keep the struck-through forecast above effective demand. A short legend dialog explains the tile on first visit.
 
 ## Frontend stack choices
 
-Standalone Angular components, Signals store, and typed Reactive Forms keep the feature small and explicit. Angular Material provides dialog, form fields, toolbar, cards, and lists so interaction patterns stay accessible without a large custom design system. Tailwind remains only for layout spacing and the weekly grid.
+Standalone Angular components, a small Signals feature store, and Reactive Forms keep the cockpit explicit. Angular Material covers dialogs, icons, and toolbar; layout and the liquid-glass look use Tailwind plus shared CSS. The grid targets tablet and desktop; audit history docks on wide screens and opens as a drawer on narrower tablet widths.
 
 ## What we would do with more time
 
 - optimistic concurrency on overrides;
 - real authentication instead of a hard-coded audit user;
-- PostgreSQL for multi-user deployments;
-- ESLint + Stryker mutation testing;
-- Docker Compose for one-command reviewer startup;
-- multi-browser Selenium execution.
+- PostgreSQL and Docker Compose for one-command review;
+- phone-first layout polish;
+- ESLint project rules and mutation testing;
+- multi-browser Selenium.

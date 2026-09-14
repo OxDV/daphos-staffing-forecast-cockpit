@@ -1,112 +1,136 @@
 # DaphOS Staffing Forecast Cockpit
 
-Fullstack take-home for reviewing and correcting hospital ward staffing demand forecasts.
+Fullstack take-home: ward managers review a weekly staffing demand forecast, spot understaffing and low-confidence days, and correct demand with an auditable history.
+
+**Branch to review:** [`staging`](https://github.com/OxDV/daphos-staffing-forecast-cockpit/tree/staging)  
+(`main` only contains the initial scaffold.)
+
+## What the app does
+
+- Browse wards week by week (past + current + future weeks in the seed)
+- See forecast demand, planned staffing, confidence, and Short / Balanced / Surplus at a glance
+- Correct editable days with validation (no past days, no negatives, justification when deviation is large)
+- Inspect audit history (who / when / why); delete corrections on editable days
+- Per-ward week summary: total understaffing, correction count, average absolute deviation
+
+## Stack
+
+| Layer    | Choice                                      |
+| -------- | ------------------------------------------- |
+| Frontend | Angular 20, Signals, Angular Material, Tailwind layout |
+| Backend  | FastAPI, SQLAlchemy, Alembic, SQLite        |
+| Tests    | pytest, Jest, Selenium WebDriver E2E        |
 
 ## Repository layout
 
 ```text
-codingChallenge/
-├── frontend/        # Angular + Angular Material + Tailwind layout
-├── backend/         # FastAPI + SQLAlchemy + SQLite
-├── e2e/             # Selenium WebDriver + Jest
-├── ARCHITECTURE.md  # Implementation plan
-├── DECISIONS.md     # Brief architecture decisions for submission
-├── NICE_TO_HAVE.md  # Optional follow-ups
+.
+├── start.sh         # Install deps + start backend & frontend
+├── frontend/        # Angular cockpit
+├── backend/         # FastAPI API + SQLite
+├── e2e/             # Selenium + Jest scenarios
+├── DECISIONS.md     # One-page architecture decisions (submission)
+├── ARCHITECTURE.md  # Longer implementation notes
+├── NICE_TO_HAVE.md  # Deferred ideas
 └── task.md          # Original brief
 ```
 
 ## Prerequisites
 
+Install these once on the machine (the script does not install system packages):
+
 - Node.js 20+
 - Python 3.11+
-- Chrome (for Selenium E2E)
+- `curl` (used for health checks)
+- Chrome (only for Selenium E2E)
 
-## Backend
+## Quick start
+
+Clone the repo, switch to **`staging`**, then run one script:
 
 ```bash
+git clone https://github.com/OxDV/daphos-staffing-forecast-cockpit.git
+cd daphos-staffing-forecast-cockpit
+git checkout staging
+./start.sh
+```
+
+`./start.sh` will:
+
+1. Create `backend/.venv` if missing
+2. Install backend deps (`pip install -e ".[dev]"`)
+3. Run Alembic migrations and seed data
+4. Run `npm install` in `frontend/` if `node_modules` is missing
+5. Start the backend, wait for `/health/ready`, then start the frontend
+6. Print links to the app and API
+
+Ctrl+C stops both services.
+
+Printed URLs:
+
+- App (frontend): http://127.0.0.1:4200
+- API docs: http://127.0.0.1:8000/docs
+- Backend health: http://127.0.0.1:8000/health/ready
+
+Frontend `/api` is proxied to `http://127.0.0.1:8000`.
+
+### Manual start (optional)
+
+```bash
+# Backend
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 alembic upgrade head
 python -m app.seed
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+# Frontend (another terminal)
+cd frontend && npm install && npm start
 ```
 
-API docs: http://127.0.0.1:8000/docs
-
-Health:
-
-- http://127.0.0.1:8000/health/live
-- http://127.0.0.1:8000/health/ready
-
-Reset the deterministic dataset:
+Reset seed data:
 
 ```bash
+cd backend && source .venv/bin/activate
 python -m app.seed --reset
 ```
 
-## Frontend
+## Forecast data
 
-```bash
-cd frontend
-npm install
-npm start
-```
-
-App: http://127.0.0.1:4200
-
-The Angular dev server proxies `/api` to `http://127.0.0.1:8000`.
+Values are **not** from a trained model. A deterministic generator (`python -m app.seed`) builds five ISO weeks (one past, current, three future) for wards **B3**, **ICU**, and **A2**, using a fixed RNG seed and dates relative to “today” in `Europe/Berlin`. Several seeded corrections populate audit history for demos.
 
 ## Tests
 
 ```bash
 # Backend
-cd backend
-source .venv/bin/activate
-pytest --cov=app --cov-report=term-missing
+cd backend && source .venv/bin/activate
+pytest
 ruff check app tests
 mypy app
 
 # Frontend
 cd frontend
-npm test -- --coverage --watchAll=false
+npm test -- --watchAll=false
 npm run typecheck
-npm run lint:format
 
-# E2E (frontend + backend must be running)
+# E2E (backend + frontend must already be running)
 cd backend
 DAPHOS_ALLOW_TEST_RESET=true uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-
-# another terminal
-cd frontend && npm start
-
-# another terminal
-cd e2e
-npm install
-npm test
+# other terminal: cd frontend && npm start
+cd e2e && npm install && npm test
 ```
 
-## Forecast data
+The brief asks for a small, deliberate test selection; this repo also includes broader unit coverage and four Selenium scenarios.
 
-Forecast values come from a deterministic generated seed (`python -m app.seed`).
-The generator uses a fixed random seed and dates relative to the current ISO week in
-`Europe/Berlin`. No trained model is used. The seed spans five weeks (one past, current,
-three future) for three wards and includes one pre-seeded override for audit history.
+## Architecture decisions
 
-## Architecture summary
+See **[DECISIONS.md](./DECISIONS.md)** (one page). Longer notes: [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-See [DECISIONS.md](./DECISIONS.md) for the one-page submission write-up and
-[ARCHITECTURE.md](./ARCHITECTURE.md) for the full implementation plan.
+## Out of scope / deferred
 
-## Unfinished / deferred
-
-Intentionally out of scope or deferred:
-
-- authentication (hard-coded audit user is used);
-- optimistic concurrency;
-- PostgreSQL / production deployment;
-- ESLint project config;
-- Stryker mutation testing;
-- Docker Compose;
-- multi-browser Selenium.
+- Real authentication (hard-coded audit user)
+- Optimistic concurrency
+- PostgreSQL / Docker Compose / production deploy
+- Phone-first layout (tablet + desktop focused)
+- Multi-browser Selenium

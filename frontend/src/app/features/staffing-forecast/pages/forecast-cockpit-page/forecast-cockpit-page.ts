@@ -173,6 +173,10 @@ export class ForecastCockpitPage {
     });
   }
 
+  protected onClearSelection(): void {
+    this.store.clearSelection();
+  }
+
   protected onCorrectDemand(): void {
     const selection = this.selectedDay();
     const week = this.data();

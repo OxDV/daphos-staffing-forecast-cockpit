@@ -1,62 +1,65 @@
 <section
   id="ward-week-grid"
-  class="ward-week-grid glass cockpit-panel h-full rounded-3xl p-5"
+  class="ward-week-grid glass cockpit-panel h-full rounded-3xl p-3 md:p-4 xl:p-5"
   data-testid="ward-week-grid"
 >
-  <div
-    id="ward-week-grid-header"
-    class="ward-week-grid__header grid grid-cols-[140px_repeat(7,minmax(0,1fr))] gap-x-2 text-left"
-  >
-    <div class="px-3 py-3 text-[11px] uppercase tracking-[0.12em] text-ink-faint">Ward</div>
-    @for (day of dayHeaders(); track day) {
-      <div
-        class="px-1 py-3 text-center text-[11px] uppercase tracking-[0.12em] text-ink-faint"
-        [attr.data-date]="day"
-      >
-        {{ formatDayHeading(day) }}
-      </div>
-    }
-  </div>
-
-  <div id="ward-week-grid-body" class="mt-3 space-y-4">
-    @for (ward of wards(); track ward.id) {
-      <div
-        class="ward-week-grid__row grid grid-cols-[140px_repeat(7,minmax(0,1fr))] gap-x-2 border-b border-line/40 pb-4 last:border-b-0"
-        [attr.id]="'ward-row-' + ward.code"
-        [attr.data-testid]="'ward-row-' + ward.code"
-        [attr.data-ward-code]="ward.code"
-      >
-        <div class="min-w-0 px-3 py-3">
-          <div class="truncate text-[15px] font-semibold">{{ ward.name }}</div>
-          <div class="text-xs text-ink-soft">{{ ward.code }}</div>
+  <div class="ward-week-grid__scroll">
+    <div class="ward-week-grid__canvas">
+      <div id="ward-week-grid-header" class="ward-week-grid__header text-left">
+        <div class="ward-week-grid__ward-label px-2 py-2 text-[11px] uppercase tracking-[0.12em] text-ink-faint md:px-3 md:py-3">
+          Ward
         </div>
-
-        @for (day of ward.days; track day.date) {
-          <div class="ward-week-grid__cell min-w-0 px-1 py-1">
-              <app-staffing-day-cell
-                [wardCode]="ward.code"
-                [day]="day"
-                [selected]="isSelected(ward.code, day.date)"
-                (dayActivate)="onDayActivate(ward, $event)"
-              />
+        @for (day of dayHeaders(); track day) {
+          <div
+            class="ward-week-grid__day-label px-0.5 py-2 text-center text-[10px] uppercase tracking-[0.1em] text-ink-faint md:px-1 md:py-3 md:text-[11px] md:tracking-[0.12em]"
+            [attr.data-date]="day"
+          >
+            {{ formatDayHeading(day) }}
           </div>
         }
-
-        <div
-          class="col-span-full min-w-0 px-3 pt-2 text-xs text-ink-soft"
-          [attr.id]="summaryId(ward.code)"
-          [attr.data-testid]="summaryId(ward.code)"
-        >
-          Total understaffing
-          <span class="font-mono text-short">{{ ward.summary.totalUnderstaffing }}</span>
-          · Corrections
-          <span class="font-mono text-ink">{{ ward.summary.manualCorrectionCount }}</span>
-          · Avg abs dev
-          <span class="font-mono text-ink">{{
-            formatAverageDeviation(ward.summary.averageAbsoluteDeviation)
-          }}</span>
-        </div>
       </div>
-    }
+
+      <div id="ward-week-grid-body" class="mt-2 space-y-3 md:mt-3 md:space-y-4">
+        @for (ward of wards(); track ward.id) {
+          <div
+            class="ward-week-grid__row border-b border-line/40 pb-3 last:border-b-0 md:pb-4"
+            [attr.id]="'ward-row-' + ward.code"
+            [attr.data-testid]="'ward-row-' + ward.code"
+            [attr.data-ward-code]="ward.code"
+          >
+            <div class="ward-week-grid__ward-label min-w-0 px-2 py-2 md:px-3 md:py-3">
+              <div class="truncate text-sm font-semibold md:text-[15px]">{{ ward.name }}</div>
+              <div class="text-[11px] text-ink-soft md:text-xs">{{ ward.code }}</div>
+            </div>
+
+            @for (day of ward.days; track day.date) {
+              <div class="ward-week-grid__cell min-w-0 px-0.5 py-0.5 md:px-1 md:py-1">
+                <app-staffing-day-cell
+                  [wardCode]="ward.code"
+                  [day]="day"
+                  [selected]="isSelected(ward.code, day.date)"
+                  (dayActivate)="onDayActivate(ward, $event)"
+                />
+              </div>
+            }
+
+            <div
+              class="ward-week-grid__summary col-span-full min-w-0 px-2 pt-2 text-[11px] text-ink-soft md:px-3 md:text-xs"
+              [attr.id]="summaryId(ward.code)"
+              [attr.data-testid]="summaryId(ward.code)"
+            >
+              Total understaffing
+              <span class="font-mono text-short">{{ ward.summary.totalUnderstaffing }}</span>
+              · Corrections
+              <span class="font-mono text-ink">{{ ward.summary.manualCorrectionCount }}</span>
+              · Avg abs dev
+              <span class="font-mono text-ink">{{
+                formatAverageDeviation(ward.summary.averageAbsoluteDeviation)
+              }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
   </div>
 </section>

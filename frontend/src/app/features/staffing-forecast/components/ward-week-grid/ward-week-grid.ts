@@ -30,7 +30,10 @@ export class WardWeekGrid {
   }
 
   protected formatAverageDeviation(value: number | null): string {
-    return value === null ? '—' : String(value);
+    if (value === null) {
+      return '—';
+    }
+    return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '');
   }
 
   protected isSelected(wardCode: string, date: string): boolean {

@@ -11,17 +11,27 @@
 >
   <div class="staffing-day-cell__top">
     <div class="staffing-day-cell__demand">
-      @if (day().isCorrected) {
-        <span class="staffing-day-cell__was" data-testid="forecast-demand">
-          {{ day().forecastDemand }}
-        </span>
-      }
+      <span
+        class="staffing-day-cell__was"
+        data-testid="forecast-demand"
+        [class.staffing-day-cell__was--placeholder]="!day().isCorrected"
+      >
+        {{ day().isCorrected ? day().forecastDemand : '\u00a0' }}
+      </span>
       <span class="staffing-day-cell__value">{{ day().effectiveDemand }}</span>
     </div>
     <div class="staffing-day-cell__planned">Plan {{ day().plannedStaffing }}</div>
   </div>
 
   <div class="staffing-day-cell__bottom">
+    <div
+      class="staffing-day-cell__corrected"
+      data-testid="corrected-marker"
+      [class.staffing-day-cell__corrected--placeholder]="!day().isCorrected"
+    >
+      {{ day().isCorrected ? 'Corrected' : '\u00a0' }}
+    </div>
+
     @if (day().canOverride) {
       <div
         class="staffing-day-cell__status"
@@ -45,13 +55,8 @@
       <div class="staffing-day-cell__locked">Locked · past</div>
     }
 
-    <div class="staffing-day-cell__footer">
-      <span data-testid="confidence-label">
-        {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
-      </span>
-      @if (day().isCorrected) {
-        <span class="staffing-day-cell__corrected" data-testid="corrected-marker">Corrected</span>
-      }
+    <div class="staffing-day-cell__footer" data-testid="confidence-label">
+      {{ formatConfidencePercent(day().confidence) }} · {{ band().label }}
     </div>
   </div>
 </button>
