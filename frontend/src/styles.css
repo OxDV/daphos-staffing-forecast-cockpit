@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink: #1a2332;
+  --color-ink-soft: #5b6b7c;
+  --color-ink-faint: #8b9aab;
+  --color-accent: #2f6fed;
+  --color-accent-ink: #f5f8ff;
+  --color-short: #c43c3c;
+  --color-surplus: #1f7a4c;
+  --color-balance: #5b6b7c;
+  --color-line: rgba(26, 35, 50, 0.12);
+  --font-display: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+:root {
+  color: var(--color-ink);
+  background:
+    radial-gradient(circle at top left, rgba(47, 111, 237, 0.18), transparent 32%),
+    radial-gradient(circle at top right, rgba(31, 122, 76, 0.12), transparent 28%),
+    linear-gradient(180deg, #edf2f7 0%, #d9e2ec 100%);
+  font-family: var(--font-display);
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 10px 30px rgba(26, 35, 50, 0.06);
+  backdrop-filter: blur(18px);
+}
+
+.glass-soft {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.rise {
+  animation: rise 280ms ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

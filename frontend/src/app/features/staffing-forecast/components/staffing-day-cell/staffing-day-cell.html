@@ -1,0 +1,38 @@
+@if (day().canOverride) {
+  <button
+    [attr.id]="cellId()"
+    type="button"
+    class="staffing-day-cell tile glass-soft w-full rounded-lg px-2 py-1.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+    [attr.data-testid]="cellId()"
+    [attr.data-ward-code]="wardCode()"
+    [attr.data-date]="day().date"
+  >
+    <div class="staffing-day-cell__values flex items-baseline gap-1">
+      <span class="staffing-day-cell__effective-demand font-mono text-lg leading-none tabular-nums">
+        {{ day().effectiveDemand }}
+      </span>
+      <span class="staffing-day-cell__planned-staffing font-mono text-[10px] text-ink-faint">
+        /{{ day().plannedStaffing }}
+      </span>
+    </div>
+    <div class="staffing-day-cell__confidence mt-1.5 text-[10px] text-ink-faint">
+      conf {{ formatConfidencePercent(day().confidence) }}
+    </div>
+  </button>
+} @else {
+  <div
+    [attr.id]="cellId()"
+    class="staffing-day-cell staffing-day-cell--locked tile glass-soft cursor-not-allowed rounded-lg px-2 py-1.5 opacity-55"
+    [attr.data-testid]="cellId()"
+    [attr.data-ward-code]="wardCode()"
+    [attr.data-date]="day().date"
+  >
+    <div class="staffing-day-cell__effective-demand font-mono text-lg leading-none tabular-nums">
+      {{ day().effectiveDemand }}
+    </div>
+    <div class="staffing-day-cell__locked-label mt-1.5 text-[10px] text-ink-soft">Locked · past</div>
+    <div class="staffing-day-cell__confidence text-[10px] text-ink-faint">
+      conf {{ formatConfidencePercent(day().confidence) }}
+    </div>
+  </div>
+}

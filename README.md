@@ -54,6 +54,8 @@ npm start
 
 App: http://localhost:4200
 
+The Angular dev server proxies `/api` to `http://localhost:8000`.
+
 ## Tests
 
 ```bash
@@ -62,9 +64,10 @@ cd backend
 source .venv/bin/activate
 pytest --cov=app --cov-report=term-missing
 
-# Frontend (default Angular unit runner for now)
+# Frontend
 cd frontend
-npm test -- --watch=false --browsers=ChromeHeadless
+npm test
+npm run test:coverage
 ```
 
 ## Forecast data
