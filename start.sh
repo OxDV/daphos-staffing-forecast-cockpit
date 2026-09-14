@@ -90,8 +90,10 @@ setup_backend() {
   source .venv/bin/activate
 
   log "Installing backend dependencies…"
-  python -m pip install --upgrade pip >/dev/null
-  pip install -e ".[dev]"
+  # --no-cache-dir avoids "Cache entry deserialization failed" on mixed/corrupt pip caches
+  # -q hides progress noise; real errors still print
+  PIP_DISABLE_PIP_VERSION_CHECK=1 python -m pip install -q --upgrade pip --no-cache-dir
+  PIP_DISABLE_PIP_VERSION_CHECK=1 pip install -q --no-cache-dir -e ".[dev]"
 
   log "Running database migrations…"
   alembic upgrade head
@@ -104,7 +106,8 @@ setup_frontend() {
   cd "${FRONTEND_DIR}"
   if [[ ! -d node_modules ]]; then
     log "Installing frontend dependencies (npm install)…"
-    npm install
+    # Transitive deprecation notices (glob/rimraf/etc.) come from Angular/Jest — not actionable here
+    npm install --no-fund --no-audit --loglevel=error
   else
     log "Frontend node_modules present — skipping npm install."
   fi
