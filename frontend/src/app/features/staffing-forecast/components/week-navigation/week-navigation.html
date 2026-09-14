@@ -1,13 +1,13 @@
 <header
   id="week-navigation"
-  class="week-navigation glass flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3"
+  class="week-navigation glass flex flex-wrap items-center justify-between gap-4 rounded-3xl px-5 py-4"
   data-testid="week-navigation"
 >
-  <div id="week-navigation-controls" class="week-navigation__controls flex items-center gap-2.5">
+  <div id="week-navigation-controls" class="week-navigation__controls flex items-center gap-3">
     <button
       id="week-previous-button"
       type="button"
-      class="week-navigation__previous rounded-lg bg-ink/5 px-2.5 py-1.5 text-sm text-ink-soft hover:bg-ink/10"
+      class="week-navigation__previous rounded-xl bg-ink/5 px-3 py-2 text-base text-ink-soft hover:bg-ink/10"
       data-testid="week-previous-button"
       aria-label="Previous week"
       (click)="previousWeek.emit()"
@@ -15,17 +15,17 @@
       ←
     </button>
 
-    <div id="week-range" class="week-navigation__range w-48 text-center">
+    <div id="week-range" class="week-navigation__range min-w-52 text-center">
       <h1
         id="week-range-label"
-        class="week-navigation__range-label font-display text-sm font-semibold tracking-tight"
+        class="week-navigation__range-label font-display text-base font-semibold tracking-tight"
         data-testid="week-range-label"
       >
         {{ weekRangeLabel() }}
       </h1>
       <div
         id="week-number-label"
-        class="week-navigation__week-number text-[10px] uppercase tracking-[0.14em] text-ink-faint"
+        class="week-navigation__week-number text-[11px] uppercase tracking-[0.14em] text-ink-faint"
         data-testid="week-number-label"
       >
         {{ weekNumberLabel() }}
@@ -35,7 +35,7 @@
     <button
       id="week-next-button"
       type="button"
-      class="week-navigation__next rounded-lg bg-ink/5 px-2.5 py-1.5 text-sm text-ink-soft hover:bg-ink/10"
+      class="week-navigation__next rounded-xl bg-ink/5 px-3 py-2 text-base text-ink-soft hover:bg-ink/10"
       data-testid="week-next-button"
       aria-label="Next week"
       (click)="nextWeek.emit()"
@@ -46,7 +46,7 @@
 
   <span
     id="week-today-badge"
-    class="week-navigation__today rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent"
+    class="week-navigation__today rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-medium text-accent"
     data-testid="week-today-badge"
   >
     {{ todayLabel() }}
