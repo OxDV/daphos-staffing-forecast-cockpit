@@ -33,6 +33,12 @@ uvicorn app.main:app --reload --port 8000
 
 API docs: http://localhost:8000/docs
 
+Example weekly endpoint:
+
+```bash
+curl "http://localhost:8000/api/v1/staffing-weeks?weekStart=2026-09-14"
+```
+
 Health checks:
 
 - http://localhost:8000/health/live
@@ -48,6 +54,8 @@ npm start
 
 App: http://localhost:4200
 
+The Angular dev server proxies `/api` to `http://localhost:8000`.
+
 ## Tests
 
 ```bash
@@ -56,9 +64,10 @@ cd backend
 source .venv/bin/activate
 pytest --cov=app --cov-report=term-missing
 
-# Frontend (default Angular unit runner for now)
+# Frontend
 cd frontend
-npm test -- --watch=false --browsers=ChromeHeadless
+npm test
+npm run test:coverage
 ```
 
 ## Forecast data

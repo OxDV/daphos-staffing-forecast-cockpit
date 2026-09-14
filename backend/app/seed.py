@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.config import settings
+from app.domain.dates import monday_of
 from app.persistence.models import DemandOverride, StaffingDay, Ward
 
 SEED_VERSION = 20260811
@@ -30,10 +31,6 @@ class SeedResult:
     override_count: int
     week_start: date
     week_end: date
-
-
-def monday_of(day: date) -> date:
-    return day - timedelta(days=day.weekday())
 
 
 def iter_seed_dates(today: date) -> list[date]:

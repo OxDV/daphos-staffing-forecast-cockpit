@@ -1,0 +1,59 @@
+<section
+  id="ward-week-grid"
+  class="ward-week-grid glass rise h-full rounded-3xl p-5"
+  data-testid="ward-week-grid"
+>
+  <div
+    id="ward-week-grid-header"
+    class="ward-week-grid__header grid grid-cols-[160px_repeat(7,minmax(0,1fr))] gap-x-2 text-left"
+  >
+    <div class="ward-week-grid__corner px-3 py-3 text-[11px] uppercase tracking-[0.12em] text-ink-faint">
+      Ward
+    </div>
+    @for (day of dayHeaders(); track day) {
+      <div
+        class="ward-week-grid__day-heading px-2 py-3 text-center text-[11px] uppercase tracking-[0.12em] text-ink-faint"
+        [attr.data-date]="day"
+      >
+        {{ formatDayHeading(day) }}
+      </div>
+    }
+  </div>
+
+  <div id="ward-week-grid-body" class="ward-week-grid__body mt-4 space-y-4">
+    @for (ward of wards(); track ward.id) {
+      <div
+        class="ward-week-row grid grid-cols-[160px_repeat(7,minmax(0,1fr))] gap-x-2 border-b border-line/50 pb-4 text-left last:border-b-0"
+        [attr.id]="'ward-row-' + ward.code"
+        [attr.data-testid]="'ward-row-' + ward.code"
+        [attr.data-ward-code]="ward.code"
+      >
+        <div class="ward-week-row__label px-3 py-3">
+          <div class="ward-week-row__name font-display text-[15px] font-semibold">{{ ward.name }}</div>
+          <div class="ward-week-row__code text-xs text-ink-soft">{{ ward.code }}</div>
+        </div>
+
+        @for (day of ward.days; track day.date) {
+          <div class="ward-week-row__cell px-1.5 py-1">
+            <app-staffing-day-cell [wardCode]="ward.code" [day]="day" />
+          </div>
+        }
+
+        <div
+          class="ward-week-row__summary col-span-7 px-3 py-2 text-xs text-ink-soft"
+          [attr.id]="summaryId(ward.code)"
+          [attr.data-testid]="summaryId(ward.code)"
+        >
+          Total understaffing
+          <span class="font-mono text-short">{{ ward.summary.totalUnderstaffing }}</span>
+          · Corrections
+          <span class="font-mono text-ink">{{ ward.summary.manualCorrectionCount }}</span>
+          · Avg abs dev
+          <span class="font-mono text-ink">{{
+            formatAverageDeviation(ward.summary.averageAbsoluteDeviation)
+          }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</section>
