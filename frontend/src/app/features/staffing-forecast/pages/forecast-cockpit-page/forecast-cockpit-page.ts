@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
@@ -8,12 +15,7 @@ import { WeekNavigation } from '../../components/week-navigation/week-navigation
 import { WardDaySelection, WardWeekGrid } from '../../components/ward-week-grid/ward-week-grid';
 import { OverrideDialog } from '../../components/override-dialog/override-dialog';
 import { AuditSidebar } from '../../components/audit-sidebar/audit-sidebar';
-import {
-  addDays,
-  formatWeekRange,
-  isoWeekNumber,
-  mondayOf,
-} from '../../week.utils';
+import { addDays, formatWeekRange, isoWeekNumber, mondayOf } from '../../week.utils';
 
 @Component({
   selector: 'app-forecast-cockpit-page',

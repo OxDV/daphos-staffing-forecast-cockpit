@@ -71,11 +71,33 @@ The Angular dev server proxies `/api` to `http://localhost:8000`.
 cd backend
 source .venv/bin/activate
 pytest --cov=app --cov-report=term-missing
+ruff check app tests
+mypy app
 
 # Frontend
 cd frontend
+npm test -- --coverage --watchAll=false
+npx tsc -p tsconfig.app.json --noEmit
+
+# E2E (requires running frontend + backend with test reset enabled)
+cd backend
+DAPHOS_ALLOW_TEST_RESET=true uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+# in another terminal
+cd frontend && npm start
+
+# in another terminal
+cd e2e
+npm install
 npm test
-npm run test:coverage
+```
+
+Reset seed only:
+
+```bash
+cd backend
+source .venv/bin/activate
+python -m app.seed --reset
 ```
 
 ## Forecast data

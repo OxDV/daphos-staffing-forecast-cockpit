@@ -11,6 +11,7 @@ from app.api.errors import (
 )
 from app.api.health import router as health_router
 from app.api.staffing import router as staffing_router
+from app.api.test_support import router as test_support_router
 from app.config import settings
 from app.domain.policies import NotFoundError, OverrideValidationError
 
@@ -24,11 +25,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_exception_handler(WeekStartValidationError, week_start_validation_handler)
-app.add_exception_handler(OverrideValidationError, override_validation_handler)
-app.add_exception_handler(NotFoundError, not_found_handler)
+app.add_exception_handler(WeekStartValidationError, week_start_validation_handler)  # type: ignore[arg-type]
+app.add_exception_handler(OverrideValidationError, override_validation_handler)  # type: ignore[arg-type]
+app.add_exception_handler(NotFoundError, not_found_handler)  # type: ignore[arg-type]
 app.include_router(health_router)
 app.include_router(staffing_router)
+if settings.allow_test_reset:
+    app.include_router(test_support_router)
 
 
 @app.get("/")

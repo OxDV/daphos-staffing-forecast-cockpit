@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.persistence.models import DemandOverride, StaffingDay, Ward
-from app.seed import WARD_SPECS, iter_seed_dates, monday_of, seed_database
+from app.seed import WARD_SPECS, iter_seed_dates, monday_of, reset_and_seed, seed_database
 
 
 def test_monday_of_returns_iso_week_start() -> None:
@@ -118,6 +118,21 @@ def test_seed_is_idempotent(session: Session, fixed_today: date) -> None:
     assert session.scalar(select(func.count()).select_from(Ward)) == first.ward_count
     assert session.scalar(select(func.count()).select_from(StaffingDay)) == first.staffing_day_count
     assert session.scalar(select(func.count()).select_from(DemandOverride)) == first.override_count
+
+
+def test_reset_and_seed_recreates_dataset(session: Session, fixed_today: date) -> None:
+    first = seed_database(session, today=fixed_today)
+    first_ward_id = session.scalars(select(Ward.id).where(Ward.code == "B3")).one()
+
+    reset = reset_and_seed(session, today=fixed_today)
+    second_ward_id = session.scalars(select(Ward.id).where(Ward.code == "B3")).one()
+
+    assert reset.created is True
+    assert reset.ward_count == first.ward_count
+    assert reset.staffing_day_count == first.staffing_day_count
+    assert reset.override_count == first.override_count
+    assert second_ward_id != first_ward_id
+    assert session.scalar(select(func.count()).select_from(DemandOverride)) == 1
 
 
 def test_seed_requires_future_day_for_initial_override(

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from random import Random
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -89,6 +89,34 @@ def seed_database(
             week_end=dates[-1],
         )
 
+    return _create_seed_dataset(session, dates=dates, reference_day=reference_day, random_seed=random_seed)
+
+
+def reset_and_seed(
+    session: Session,
+    *,
+    today: date | None = None,
+    random_seed: int = SEED_VERSION,
+) -> SeedResult:
+    """Delete all staffing rows and recreate the deterministic seed dataset."""
+    reference_day = today or datetime.now(tz=ZoneInfo("Europe/Berlin")).date()
+    dates = iter_seed_dates(reference_day)
+
+    session.execute(delete(DemandOverride))
+    session.execute(delete(StaffingDay))
+    session.execute(delete(Ward))
+    session.commit()
+
+    return _create_seed_dataset(session, dates=dates, reference_day=reference_day, random_seed=random_seed)
+
+
+def _create_seed_dataset(
+    session: Session,
+    *,
+    dates: list[date],
+    reference_day: date,
+    random_seed: int,
+) -> SeedResult:
     rng = Random(random_seed)
     wards: list[Ward] = []
     for code, name, tz_name in WARD_SPECS:
@@ -138,7 +166,7 @@ def seed_database(
                 reference_day.day,
                 8,
                 0,
-                tzinfo=timezone.utc,
+                tzinfo=UTC,
             ),
         )
     )
@@ -155,12 +183,15 @@ def seed_database(
 
 
 def main() -> None:  # pragma: no cover
+    import sys
+
     from app.persistence.database import SessionLocal
 
+    reset = "--reset" in sys.argv
     session = SessionLocal()
     try:
-        result = seed_database(session)
-        action = "created" if result.created else "already present"
+        result = reset_and_seed(session) if reset else seed_database(session)
+        action = "reset" if reset else ("created" if result.created else "already present")
         print(
             f"Seed {action}: wards={result.ward_count}, "
             f"days={result.staffing_day_count}, overrides={result.override_count}, "

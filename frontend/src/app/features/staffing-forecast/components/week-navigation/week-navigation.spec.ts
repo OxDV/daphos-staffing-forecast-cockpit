@@ -26,7 +26,9 @@ describe('WeekNavigation', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('#week-range-label')?.textContent).toContain('14 – 20 Sep 2026');
     expect(compiled.querySelector('#week-number-label')?.textContent).toContain('Week 38');
-    expect(compiled.querySelector('#week-today-badge')?.textContent).toContain('Today · 2026-09-14');
+    expect(compiled.querySelector('#week-today-badge')?.textContent).toContain(
+      'Today · 2026-09-14',
+    );
 
     compiled.querySelector<HTMLButtonElement>('#week-previous-button')?.click();
     compiled.querySelector<HTMLButtonElement>('#week-next-button')?.click();

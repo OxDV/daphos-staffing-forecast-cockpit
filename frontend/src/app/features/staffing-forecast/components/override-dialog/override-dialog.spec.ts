@@ -57,6 +57,34 @@ describe('OverrideDialog', () => {
     fixture.detectChanges();
   });
 
+  it('reseeds the form only when the selected date changes', () => {
+    dialog.form.setValue({ correctedDemand: 18, justification: 'Keep me' });
+
+    fixture.componentRef.setInput('day', {
+      ...day,
+      effectiveDemand: 14,
+      isCorrected: true,
+    });
+    fixture.detectChanges();
+
+    expect(dialog.form.getRawValue()).toEqual({
+      correctedDemand: 18,
+      justification: 'Keep me',
+    });
+
+    fixture.componentRef.setInput('day', {
+      ...day,
+      date: '2026-09-17',
+      effectiveDemand: 9,
+    });
+    fixture.detectChanges();
+
+    expect(dialog.form.getRawValue()).toEqual({
+      correctedDemand: 9,
+      justification: '',
+    });
+  });
+
   it('emits closed on cancel', () => {
     const closed = jest.fn();
     fixture.componentInstance.closed.subscribe(closed);

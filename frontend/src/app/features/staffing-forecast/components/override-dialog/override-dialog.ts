@@ -32,7 +32,9 @@ export class OverrideDialog {
   readonly closed = output<void>();
   readonly saved = output<void>();
 
-  protected readonly clientErrors = signal<{ correctedDemand?: string; justification?: string }>({});
+  protected readonly clientErrors = signal<{ correctedDemand?: string; justification?: string }>(
+    {},
+  );
   protected readonly submitting = this.store.overrideSubmitting;
   protected readonly serverError = this.store.overrideError;
 
@@ -44,8 +46,13 @@ export class OverrideDialog {
   });
 
   constructor() {
+    let seededDate: string | null = null;
     effect(() => {
       const day = this.day();
+      if (seededDate === day.date) {
+        return;
+      }
+      seededDate = day.date;
       this.form.reset({
         correctedDemand: day.effectiveDemand,
         justification: '',

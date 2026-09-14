@@ -39,8 +39,7 @@ describe('StaffingApiService', () => {
     });
 
     const request = httpMock.expectOne(
-      (req) =>
-        req.url === '/api/v1/staffing-weeks' && req.params.get('weekStart') === '2026-09-14',
+      (req) => req.url === '/api/v1/staffing-weeks' && req.params.get('weekStart') === '2026-09-14',
     );
     expect(request.request.method).toBe('GET');
     request.flush(response);

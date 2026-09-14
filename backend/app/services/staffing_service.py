@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import UUID
 from zoneinfo import ZoneInfo
@@ -234,7 +234,7 @@ def create_demand_override(
         corrected_demand=corrected_demand,
         justification=cleaned_justification,
         corrected_by=settings.audit_user,
-        corrected_at=now or datetime.now(tz=timezone.utc),
+        corrected_at=now or datetime.now(tz=UTC),
     )
     session.add(override)
     session.commit()

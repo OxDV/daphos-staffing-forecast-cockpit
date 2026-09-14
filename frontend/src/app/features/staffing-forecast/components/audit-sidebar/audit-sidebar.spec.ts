@@ -47,7 +47,9 @@ describe('AuditSidebar', () => {
     fixture.detectChanges();
 
     expect(
-      (fixture.nativeElement as HTMLElement).querySelector('[data-testid="audit-sidebar-placeholder"]'),
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="audit-sidebar-placeholder"]',
+      ),
     ).toBeTruthy();
   });
 

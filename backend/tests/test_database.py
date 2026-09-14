@@ -47,8 +47,8 @@ def test_get_session_yields_and_closes(tmp_path: Path) -> None:
 
 
 def test_metadata_contains_expected_tables() -> None:
-    from app.persistence.database import Base
     from app.persistence import models as _models  # noqa: F401
+    from app.persistence.database import Base
 
     table_names = set(Base.metadata.tables)
     assert table_names == {"wards", "staffing_days", "demand_overrides"}

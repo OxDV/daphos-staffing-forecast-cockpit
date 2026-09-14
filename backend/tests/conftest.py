@@ -9,8 +9,8 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.persistence.database import Base
 from app.persistence import models as _models  # noqa: F401
+from app.persistence.database import Base
 
 
 @pytest.fixture()

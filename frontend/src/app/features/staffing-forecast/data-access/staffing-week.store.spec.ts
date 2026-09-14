@@ -100,9 +100,7 @@ describe('StaffingWeekStore', () => {
     store.loadWeek('2026-09-16');
     expect(store.status()).toBe('loading');
 
-    const request = httpMock.expectOne(
-      (req) => req.params.get('weekStart') === '2026-09-14',
-    );
+    const request = httpMock.expectOne((req) => req.params.get('weekStart') === '2026-09-14');
     request.flush(weekFixture);
 
     expect(store.weekStart()).toBe('2026-09-14');
@@ -136,11 +134,13 @@ describe('StaffingWeekStore', () => {
     httpMock.expectOne(() => true).flush(weekFixture);
 
     store.goToNextWeek();
-    httpMock.expectOne((req) => req.params.get('weekStart') === '2026-09-21').flush({
-      ...weekFixture,
-      weekStart: '2026-09-21',
-      weekEnd: '2026-09-27',
-    });
+    httpMock
+      .expectOne((req) => req.params.get('weekStart') === '2026-09-21')
+      .flush({
+        ...weekFixture,
+        weekStart: '2026-09-21',
+        weekEnd: '2026-09-27',
+      });
     expect(store.weekStart()).toBe('2026-09-21');
 
     store.goToPreviousWeek();
@@ -321,10 +321,12 @@ describe('StaffingWeekStore', () => {
       .subscribe({
         error: () => undefined,
       });
-    httpMock.expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides').flush(
-      { fieldErrors: { justification: [] } },
-      { status: 422, statusText: 'Unprocessable Entity' },
-    );
+    httpMock
+      .expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides')
+      .flush(
+        { fieldErrors: { justification: [] } },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
     expect(store.overrideError()).toBe('Unable to save correction');
 
     store
@@ -335,10 +337,9 @@ describe('StaffingWeekStore', () => {
       .subscribe({
         error: () => undefined,
       });
-    httpMock.expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides').flush(
-      { detail: '' },
-      { status: 422, statusText: 'Unprocessable Entity' },
-    );
+    httpMock
+      .expectOne('/api/v1/wards/ward-1/staffing-days/2026-09-16/overrides')
+      .flush({ detail: '' }, { status: 422, statusText: 'Unprocessable Entity' });
     expect(store.overrideError()).toBe('Unable to save correction');
   });
 

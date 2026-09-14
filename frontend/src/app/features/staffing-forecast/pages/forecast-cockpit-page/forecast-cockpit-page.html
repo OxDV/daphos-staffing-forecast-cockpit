@@ -16,19 +16,32 @@
         D
       </span>
       <div class="brand-block__copy leading-tight">
-        <div id="brand-name" class="brand-block__name font-display text-base font-semibold tracking-tight">
+        <div
+          id="brand-name"
+          class="brand-block__name font-display text-base font-semibold tracking-tight"
+        >
           DaphOS
         </div>
-        <div id="brand-subtitle" class="brand-block__subtitle text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+        <div
+          id="brand-subtitle"
+          class="brand-block__subtitle text-[11px] uppercase tracking-[0.14em] text-ink-soft"
+        >
           Forecast
         </div>
       </div>
     </div>
 
-    <div id="ward-sidebar-label" class="mb-2 text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+    <div
+      id="ward-sidebar-label"
+      class="mb-2 text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+    >
       Wards
     </div>
-    <nav id="ward-sidebar-nav" class="ward-sidebar__nav flex flex-col gap-1.5 text-sm" aria-label="Wards">
+    <nav
+      id="ward-sidebar-nav"
+      class="ward-sidebar__nav flex flex-col gap-1.5 text-sm"
+      aria-label="Wards"
+    >
       @if (data(); as week) {
         @for (ward of week.wards; track ward.id) {
           <a

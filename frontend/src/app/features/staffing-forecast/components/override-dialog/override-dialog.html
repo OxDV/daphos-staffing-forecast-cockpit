@@ -38,7 +38,11 @@
           data-testid="corrected-demand-input"
         />
         @if (clientErrors().correctedDemand; as message) {
-          <span id="corrected-demand-error" class="mt-1 block text-xs text-short" data-testid="corrected-demand-error">
+          <span
+            id="corrected-demand-error"
+            class="mt-1 block text-xs text-short"
+            data-testid="corrected-demand-error"
+          >
             {{ message }}
           </span>
         }
@@ -56,14 +60,22 @@
           data-testid="justification-input"
         ></textarea>
         @if (clientErrors().justification; as message) {
-          <span id="justification-error" class="mt-1 block text-xs text-short" data-testid="justification-error">
+          <span
+            id="justification-error"
+            class="mt-1 block text-xs text-short"
+            data-testid="justification-error"
+          >
             {{ message }}
           </span>
         }
       </label>
 
       @if (serverError(); as message) {
-        <p id="override-server-error" class="text-sm text-short" data-testid="override-server-error">
+        <p
+          id="override-server-error"
+          class="text-sm text-short"
+          data-testid="override-server-error"
+        >
           {{ message }}
         </p>
       }

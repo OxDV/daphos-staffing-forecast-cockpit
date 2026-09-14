@@ -19,7 +19,9 @@
           {{ day().forecastDemand }}
         </span>
       }
-      <span class="staffing-day-cell__effective-demand font-mono text-2xl leading-none tabular-nums">
+      <span
+        class="staffing-day-cell__effective-demand font-mono text-2xl leading-none tabular-nums"
+      >
         {{ day().effectiveDemand }}
       </span>
       <span class="staffing-day-cell__planned-staffing font-mono text-xs text-ink-faint">
@@ -67,7 +69,9 @@
     [attr.data-confidence-band]="band().kind"
     (click)="onActivate()"
   >
-    <div class="staffing-day-cell__effective-demand relative z-[1] font-mono text-2xl leading-none tabular-nums">
+    <div
+      class="staffing-day-cell__effective-demand relative z-[1] font-mono text-2xl leading-none tabular-nums"
+    >
       {{ day().effectiveDemand }}
     </div>
     <div class="staffing-day-cell__locked-label relative z-[1] mt-2.5 text-[11px] text-ink-soft">

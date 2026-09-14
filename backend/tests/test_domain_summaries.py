@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -45,11 +45,11 @@ def test_effective_demand_uses_latest_override() -> None:
     overrides = [
         SimpleNamespace(
             corrected_demand=Decimal("11.00"),
-            corrected_at=datetime(2026, 9, 14, 8, 0, tzinfo=timezone.utc),
+            corrected_at=datetime(2026, 9, 14, 8, 0, tzinfo=UTC),
         ),
         SimpleNamespace(
             corrected_demand=Decimal("14.00"),
-            corrected_at=datetime(2026, 9, 14, 10, 0, tzinfo=timezone.utc),
+            corrected_at=datetime(2026, 9, 14, 10, 0, tzinfo=UTC),
         ),
     ]
 
@@ -69,7 +69,7 @@ def test_day_metrics_and_summary_with_corrections() -> None:
         overrides=[
             SimpleNamespace(
                 corrected_demand=Decimal("12.00"),
-                corrected_at=datetime(2026, 9, 14, 8, 0, tzinfo=timezone.utc),
+                corrected_at=datetime(2026, 9, 14, 8, 0, tzinfo=UTC),
             )
         ],
     )

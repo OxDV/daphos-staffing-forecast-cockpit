@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import uuid4
 
@@ -103,19 +103,19 @@ def test_second_override_keeps_history(
         seeded_session,
         ward_id=ward.id,
         service_date=date(2026, 9, 18),
-        corrected_demand=Decimal("15"),
+        corrected_demand=Decimal(15),
         justification="First correction",
         today=fixed_today,
-        now=datetime(2026, 9, 14, 9, 0, tzinfo=timezone.utc),
+        now=datetime(2026, 9, 14, 9, 0, tzinfo=UTC),
     )
     second = create_demand_override(
         seeded_session,
         ward_id=ward.id,
         service_date=date(2026, 9, 18),
-        corrected_demand=Decimal("16"),
+        corrected_demand=Decimal(16),
         justification="Second correction",
         today=fixed_today,
-        now=datetime(2026, 9, 14, 10, 0, tzinfo=timezone.utc),
+        now=datetime(2026, 9, 14, 10, 0, tzinfo=UTC),
     )
 
     history = get_override_history(
@@ -124,7 +124,7 @@ def test_second_override_keeps_history(
         service_date=date(2026, 9, 18),
     )
     assert len(history.items) >= 2
-    assert history.items[0].corrected_demand == Decimal("16")
+    assert history.items[0].corrected_demand == Decimal(16)
     assert first.day.forecast_demand == second.day.forecast_demand
     assert second.summary.manual_correction_count >= 2
 

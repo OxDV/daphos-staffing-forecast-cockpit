@@ -7,7 +7,9 @@
     id="ward-week-grid-header"
     class="ward-week-grid__header grid grid-cols-[160px_repeat(7,minmax(0,1fr))] gap-x-2 text-left"
   >
-    <div class="ward-week-grid__corner px-3 py-3 text-[11px] uppercase tracking-[0.12em] text-ink-faint">
+    <div
+      class="ward-week-grid__corner px-3 py-3 text-[11px] uppercase tracking-[0.12em] text-ink-faint"
+    >
       Ward
     </div>
     @for (day of dayHeaders(); track day) {
@@ -29,7 +31,9 @@
         [attr.data-ward-code]="ward.code"
       >
         <div class="ward-week-row__label px-3 py-3">
-          <div class="ward-week-row__name font-display text-[15px] font-semibold">{{ ward.name }}</div>
+          <div class="ward-week-row__name font-display text-[15px] font-semibold">
+            {{ ward.name }}
+          </div>
           <div class="ward-week-row__code text-xs text-ink-soft">{{ ward.code }}</div>
         </div>
 

@@ -7,13 +7,20 @@
     <h2 id="audit-sidebar-title" class="font-display text-sm font-semibold tracking-tight">
       Audit history
     </h2>
-    <span id="audit-sidebar-timezone" class="text-[11px] uppercase tracking-[0.14em] text-ink-faint">
+    <span
+      id="audit-sidebar-timezone"
+      class="text-[11px] uppercase tracking-[0.14em] text-ink-faint"
+    >
       UTC
     </span>
   </div>
 
   @if (!selectedDay()) {
-    <p id="audit-sidebar-placeholder" class="text-sm text-ink-soft" data-testid="audit-sidebar-placeholder">
+    <p
+      id="audit-sidebar-placeholder"
+      class="text-sm text-ink-soft"
+      data-testid="audit-sidebar-placeholder"
+    >
       Select a day to view audit history
     </p>
   } @else if (loading()) {
